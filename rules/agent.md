@@ -1,5 +1,7 @@
 # Agent 行为规范
 
+> **文件位置**：本文件自身位于 `/rules/agent.md`，是规则体系的总入口。`/rules/` 存放 Agent 行为规则与分析方法；`/documents/` 存放具体项目的事实、约定和决策记录，二者不得混放。
+
 ## 1. 核心原则
 
 你是本项目专属研发助手。所有输出基于项目文档、技术方案与编程规范。缺少信息时明确指出，严禁编造。
@@ -13,7 +15,7 @@
 
 收到任务后先回答三个问题：
 1. 用户要什么？——一句话复述目标。
-2. 涉及哪些文件/模块？——基于术语表（glossary.md）定位，不模糊搜索。
+2. 涉及哪些文件/模块？——基于项目术语表（`/documents/glossary.md`）定位，不模糊搜索。
 3. 风险多大？——改的是局部实现还是公开契约？
 
 意图不明时直接询问，不推断。
@@ -34,16 +36,16 @@
 
 | 问题 | 调用文档 |
 |------|----------|
-| 改动会影响什么？ | `destructive-analysis.md` |
-| 业务规则是什么？ | `business-rules.md` |
-| 数据怎么流转？ | `data-flow.md`（实例）、`data-flow-methodology.md`（方法论） |
-| 代码怎么写？ | `oop-principles.md` |
-| 做过类似决策吗？ | `decision-log.md` |
-| 这个术语什么意思？ | `glossary.md` |
-| 架构是怎样的？ | `architecture.md` |
-| Bug 怎么诊断？ | `diagnosing-bugs.md` |
-| 数据结构怎么设计？ | `data-structure-analysis.md` |
-| 项目文档怎么创建？ | `document-init.md` |
+| 改动会影响什么？ | `/rules/destructive-analysis.md` |
+| 业务规则是什么？ | `/documents/business-rules.md` |
+| 数据怎么流转？ | `/documents/data-flow.md`（项目实例）、`/rules/data-flow-methodology.md`（方法论） |
+| 代码怎么写？ | `/rules/oop-principles.md` |
+| 做过类似决策吗？ | `/documents/decision-log.md` |
+| 这个术语什么意思？ | `/documents/glossary.md` |
+| 架构是怎样的？ | `/documents/architecture.md` |
+| Bug 怎么诊断？ | `/rules/diagnosing-bugs.md` |
+| 数据结构怎么设计？ | `/rules/data-structure-analysis.md` |
+| 项目文档怎么创建？ | `/rules/document-init.md` |
 
 ## 5. 编码原则
 
@@ -67,15 +69,16 @@
 
 ## 6. 文档使用（按需加载）
 
+- Agent 规则在 `/rules/` 目录；本总纲固定为 `/rules/agent.md`。
 - 项目文档在 `/documents/` 目录，缺失时回退检索 `docs/`、根目录 `README.md`（项目自述文件）。
-- 先看 `/documents/document-init.md` 了解文档清单和内容基准。
+- 先看 `/rules/document-init.md` 了解项目文档清单和内容基准。
 - 只加载与当前任务直接相关的文档章节，精准定位。
-- 用术语表（glossary.md）定位文件，不模糊搜索。
+- 用术语表（`/documents/glossary.md`）定位文件，不模糊搜索。
 - 文档缺失时：常规/重大改动报告缺失并请求补充；轻微改动可降级推测（标注低置信度）。
 
 ## 7. 决策回查（常规及以上改动）
 
-1. 打开 `decision-log.md` 索引表，关键词匹配。
+1. 打开 `/documents/decision-log.md` 索引表，关键词匹配。
 2. 命中冲突 → 输出冲突提示（历史编号+摘要+冲突点+调和建议），暂停等确认。
 3. 无冲突或无记录 → 通过。
 4. 需要新建记录时（同时满足：难以撤销、无上下文会惊讶、存在真实权衡）才写入。
@@ -83,13 +86,13 @@
 ## 8. 破坏性控制（重大改动）
 
 - 修改前评估是否破坏已有行为、数据契约、API 签名。
-- 涉及数据删除/表结构/共享配置/中间件顺序时，按 `destructive-analysis.md` 标记。
-- 破坏性变更日志写入 `decision-log.md`，同根因合并，不逐条记录。
+- 涉及数据删除/表结构/共享配置/中间件顺序时，按 `/rules/destructive-analysis.md` 标记。
+- 破坏性变更日志写入 `/documents/decision-log.md`，同根因合并，不逐条记录。
 
 ## 9. 业务逻辑判断
 
 涉及业务决策时：
-1. 引用 `business-rules.md` 对应规则条目。
+1. 引用 `/documents/business-rules.md` 对应规则条目。
 2. 识别边界条件（状态/金额/角色），最多提 3 个关键边界场景确认。
 3. 输出伪代码或流程图，明确所有分支。
 4. 关键判断处注释业务规则编号。规则冲突时暂停并列出冲突点。
@@ -98,7 +101,7 @@
 
 | 时机 | 动作 |
 |------|------|
-| 遇到不熟悉的业务词 | 先查 `glossary.md`，确认对应实体/表/组件 |
+| 遇到不熟悉的业务词 | 先查 `/documents/glossary.md`，确认对应实体/表/组件 |
 | 用词与术语表冲突 | 指出冲突请用户确认，确认后更新术语表 |
 | 用中文描述需求 | 对照术语表转为项目标准英文缩写 |
 | 术语表缺失 | 基于代码结构反推，低置信度标注并请求确认 |

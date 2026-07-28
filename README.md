@@ -12,24 +12,36 @@
 - 什么时候该抽象、什么时候不该抽象
 - 业务逻辑怎么分析、数据流怎么追踪
 
-把规则文件放到项目里，Agent 就会照章办事。不再需要每次都口头提醒。
+把 `rules/` 中的规则文件和 `documents/` 中的项目文档结构放到项目里，Agent 就会照章办事。不再需要每次都口头提醒。
+
+## 目录结构
+
+```text
+.
+├─ rules/        # Agent 行为规则、分析方法和编码约束
+│  └─ agent.md   # 规则总入口；agent.md 本身位于 rules 文件夹
+├─ documents/    # 项目事实、架构、业务规则、数据流和决策记录示例
+└─ README.md     # 本规则仓库说明
+```
 
 ## 规则清单
 
 | 文件 | 定位 | 核心内容 |
 |------|------|----------|
-| `agent.md` | 总纲 | 任务分级（轻微/常规/重大）、能力注册表、行动铁律 |
-| `business-analysis.md` | 业务决策 | 变更影响分析、决策四步框架、冲突回查、优先级体系 |
-| `data-flow-methodology.md` | 数据追踪 | 六步追踪法、固定推导顺序、节点标注规范 |
-| `data-structure-analysis.md` | 数据建模 | 实体识别、关系建模、字段推导、索引策略、写入策略阶梯 |
-| `destructive-analysis.md` | 风险控制 | 变更分级、事前预测、事中检测、扩展-收缩迁移模式 |
-| `diagnosing-bugs.md` | 排错流程 | 反馈回路→复现最小化→可证伪假设→插桩→修复→清理 |
-| `document-init.md` | 文档体系 | 8 类项目文档的创建时机、内容基准、初始化原则 |
-| `oop-principles.md` | 编码规范 | DDD/OOP/AOP/FP 范式、C#/.NET 规范、SQL 安全规范 |
+| `rules/agent.md` | 总纲 | 任务分级（轻微/常规/重大）、能力注册表、行动铁律 |
+| `rules/business-analysis.md` | 业务决策 | 变更影响分析、决策四步框架、冲突回查、优先级体系 |
+| `rules/data-flow-methodology.md` | 数据追踪 | 六步追踪法、固定推导顺序、节点标注规范 |
+| `rules/data-structure-analysis.md` | 数据建模 | 实体识别、关系建模、字段推导、索引策略、写入策略阶梯 |
+| `rules/destructive-analysis.md` | 风险控制 | 变更分级、事前预测、事中检测、扩展-收缩迁移模式 |
+| `rules/diagnosing-bugs.md` | 排错流程 | 反馈回路→复现最小化→可证伪假设→插桩→修复→清理 |
+| `rules/document-init.md` | 文档体系 | 8 类项目文档的创建时机、内容基准、初始化原则 |
+| `rules/oop-principles.md` | 编码规范 | DDD/OOP/AOP/FP 范式、C#/.NET 规范、SQL 安全规范 |
+
+`documents/` 下提供 8 类项目文档的最小示例。示例用于展示结构和写法，接入实际项目后必须依据代码与真实业务资料替换。
 
 ## 怎么用
 
-在 AI Coding Agent 的系统提示或项目配置中引用这些规则文件。以 Cline 为例，在 `Cline\Rules\` 目录下放置规则即可自动加载。其他 Agent 平台对应机制类似。
+在 AI Coding Agent 的系统提示或项目配置中引用 `rules/` 下的文件，并把 `documents/` 放在项目根目录。以 Cline 为例，可将规则文件配置为自动加载，并以 `rules/agent.md` 作为总入口。其他 Agent 平台对应机制类似。
 
 Agent 会根据任务风险自动选择流程深度：
 
@@ -52,4 +64,3 @@ Agent 会根据任务风险自动选择流程深度：
 ## 适用场景
 
 适合嵌入任何使用 AI Coding Agent 的团队项目，作为 Agent 行为的统一标准。
-
