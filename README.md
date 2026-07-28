@@ -37,4 +37,4 @@ v1.0
 
 ## 适用场景
 
-适用于 AI Coding Agent（如 CodeBuddy、Cursor、Copilot 等）在团队项目中作为行为准则和知识库使用。
+适用于 AI Coding Agent（如 Cursor、Copilot、Cline 等）在团队项目中作为行为准则和知识库使用。
