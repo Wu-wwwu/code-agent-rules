@@ -23,6 +23,8 @@
 | [case-b-money-gate.md](./case-b-money-gate.md) | woocommerce/woocommerce#25641、#45815 | 金额/业务规则门禁、对照实现冲突 | ✅ | ✅ |
 | [case-c-dependency-upgrade.md](./case-c-dependency-upgrade.md) | Django 2.0 on_delete 必填化 | 依赖变更升级触发、破坏性预扫描、扩展-收缩 | ✅ | ✅ |
 | [case-d-decision-recall.md](./case-d-decision-recall.md) | microsoft/TypeScript#202 | 决策回查、rejected 决策重提条件 | ✅ | ⚠️ 不适用（见案例说明） |
+| [case-e-autonomous-technology.md](./case-e-autonomous-technology.md) | 综合工程场景 | 从证据识别语言/技术栈、边界内自主选型 | ✅ | ✅ |
+| [case-f-multi-agent-collaboration.md](./case-f-multi-agent-collaboration.md) | 综合工程场景 | 主/子 Agent 契约、单写者与隔离边界、结果验收 | ✅ | ✅ |
 
 ## 维护约定
 

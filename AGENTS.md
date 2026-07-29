@@ -6,13 +6,13 @@
 取消注释你需要的那一行（两版独立，选其一即可，不要同时启用）：
 
 - 强约束版（完整门禁，需配套 `documents/`）：读取并遵循 `rules/agent.md`，并按其中“能力路由与知识加载”章节按需加载 `rules/` 下专项规则与 `documents/`。
-- Self 独立版（轻量，按需加载模块）：读取并遵循 `self/core.md`；复杂场景按 `self/README.md` 的触发表加载对应模块（context / diagnosis / change / security）。
+- Self 独立版（轻量，按需加载模块）：读取并遵循 `self/core.md`；复杂场景按 `self/README.md` 的触发表加载对应模块（context / diagnosis / change / security / technology / collaboration）。
 
 ## 文件地图
 - `rules/agent.md`        强约束版总入口（循环控制、风险分级、门禁、执行循环）
-- `rules/*.md`            专项规则：业务分析、数据流、数据建模、破坏性分析、排错、文档体系、编码规范
+- `rules/*.md`            专项规则：业务分析、数据流、数据建模、破坏性分析、排错、文档、编码、技术选型与多 Agent 协作
 - `self/core.md`          Self 版最小入口（30~60 行）
-- `self/README.md`        Self 版模块索引（context / diagnosis / change / security）
+- `self/README.md`        Self 版模块索引（含技术选型与多 Agent 协作）
 - `documents/`            8 类项目事实与决策记录示例（强约束版配套，接入后须替换为真实内容）
 - `eval/`                 规则回归验证基准（维护者使用）
 
@@ -21,5 +21,6 @@
 2. 每轮只加载会改变下一动作的最小知识；不全文通读无关文件。
 3. 工具执行成功 ≠ 任务成功；每轮对照预期与实际验证。
 4. 不编造事实 / API / 版本 / 业务规则；高风险或未知项先暂停确认。
+5. 不预设语言或技术栈；从需求、文档、代码、配置和环境证据中识别或选择。作为主 Agent 或子 Agent 时均保持原授权、风险和验证边界。
 
 > 更多说明见仓库 `README.md`。各工具专属入口（`CLAUDE.md` / `.cursor/` / `.trae/` / `.github/` / `CODEBUDDY.md`）内容与此一致，仅加载路径约定不同。

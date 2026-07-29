@@ -13,7 +13,7 @@ description: 项目文档体系的创建与内容基准。首次需要创建、�
 |------|----------|-----------|----------|
 | `project-doc.md` | 首次进入项目 | 项目名称和定位、目录结构概览 | 目录名、构建/工程文件名、README 首段 |
 | `architecture.md` | 首次进入项目 | 分层结构、模块边界、技术栈、实体→表名映射 | 依赖声明与引用（如 csproj、package.json、go.mod、pom.xml）、命名空间/包结构、API 路径 |
-| `tech-stack.md` | 确认技术栈后 | 语言/框架/数据库版本、核心依赖 | 构建与依赖清单（如 csproj、packages.config、package.json、pom.xml、go.mod、requirements.txt）、Dockerfile |
+| `tech-stack.md` | 识别现有技术栈或为新项目完成选型后 | 语言/框架/数据库版本、核心依赖、证据或选择依据 | 构建与依赖清单（如 csproj、packages.config、package.json、pom.xml、go.mod、requirements.txt）、锁文件、Dockerfile、运行结果 |
 | `data-flow.md` | 首次涉及数据处理 | 至少 1 条核心数据链路（入口→处理→出口） | 入口→处理→存储的调用链（如 Controller→Service→Repository、路由→handler→数据访问层） |
 | `decision-log.md` | 首次做出技术决策 | 索引区（空）+ 待决问题区（空） | — |
 | `coding-standards.md` | 首次代码生成前 | 已观察到的编码模式（≥3 条） | 实际代码风格 |
@@ -24,6 +24,7 @@ description: 项目文档体系的创建与内容基准。首次需要创建、�
 
 - **缺什么建什么**：不提前创建所有文档，仅在任务需要且文档不存在时创建。
 - **内容从代码中来**：优先通过代码、配置、Schema、目录结构和运行结果推导内容，记录证据来源并标注“由代码推导，待确认”；只有该推断会影响当前任务正确性时，才请求用户确认。
+- **识别与选型分开**：现有项目先记录已验证现状；新项目或确需变更方向时按 `/rules/technology-selection.md` 自主选型并记录依据，不把“等待用户指定语言或框架”作为默认前置条件。
 - **最小化填充**：每个文档只填当前任务必需的信息，不追求完善。
 - **无法推导时标注**：明确写"需用户提供"，不编造。
 

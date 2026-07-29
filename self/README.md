@@ -10,6 +10,8 @@
 | 偶发、复杂或无法稳定复现的 Bug | [`diagnosis.md`](./diagnosis.md) | 反馈回路、可证伪假设、插桩和回归 |
 | API、Schema、数据、共享配置或不可逆变更 | [`change.md`](./change.md) | 兼容、迁移、防护、回退和事后核验 |
 | 权限、认证、敏感信息、依赖或执行风险 | [`security.md`](./security.md) | 威胁边界、最小权限、敏感数据和安全验证 |
+| 语言/技术栈不明确、新项目选型或技术方向变化 | [`technology.md`](./technology.md) | 从项目证据识别现状，在边界内自主选型并验证 |
+| 多 Agent 编排、任务委派或作为子 Agent 被调用 | [`collaboration.md`](./collaboration.md) | 任务包、单写者与隔离边界、结果返回和主 Agent 验收 |
 
 
 加载模块后仍以 `core.md` 的目标、证据和验证循环为总控；模块不能替代项目事实或用户授权。

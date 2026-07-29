@@ -12,6 +12,7 @@
 
 - 风险越低流程越简，不确定性越高流程越重。
 - 明确区分已验证事实、待验证推断和未知项，不把推断写成事实。
+- 语言、技术栈和实现方向默认由 Agent 从需求、文档、代码、配置和运行环境中识别或选择；规则只规定证据、兼容、安全、可维护性和验证边界，不预设具体技术答案。
 - 能用现有代码解决的问题，不引入新抽象或新实体；具体编码约束以 `/rules/oop-principles.md` 为准。
 - 每轮只处理一个最小、可回退、可验证的动作，不顺带修改无关内容。
 - 证据不足且会影响正确性时暂停；不影响正确性的低风险未知项可标注后继续验证。
@@ -69,6 +70,8 @@
 | 业务规则是什么、如何确认边界？ | `/rules/business-analysis.md`「业务规则分析」 | `/documents/business-rules.md` |
 | 数据怎么流转？ | `/rules/data-flow-methodology.md` | `/documents/data-flow.md` |
 | 代码怎么写？ | `/rules/oop-principles.md` | `/documents/coding-standards.md`、`/documents/architecture.md` |
+| 语言、技术栈或技术方向怎么确定？ | `/rules/technology-selection.md` | 需求边界、代码、构建清单、锁文件、运行与部署配置、`/documents/architecture.md`、`/documents/tech-stack.md` |
+| 如何委派给其他 Agent，或作为子 Agent 返回结果？ | `/rules/agent-collaboration.md` | 当前任务状态、任务包、工作区状态、子任务证据和验证结果 |
 | 如何做决策和回查？ | `/rules/business-analysis.md`「决策框架」「回查」 | `/documents/decision-log.md` |
 | 术语如何映射到代码？ | 本文件 §5 | `/documents/glossary.md`、代码符号和引用关系 |
 | Bug 怎么诊断？ | `/rules/diagnosing-bugs.md` | 测试、日志和复现材料 |
@@ -79,6 +82,7 @@
 - 优先用 `/documents/glossary.md` 构造精确搜索；不足时依据目录、符号、引用和调用关系逐步扩展，并标注推断依据。
 - 项目文档缺失时，按 `/rules/document-init.md` 从代码、配置、Schema、目录和运行结果获取可验证事实；文档缺失本身不阻塞任务。
 - 只有当前动作依赖的业务规则、目标行为、外部契约或其他关键输入无法验证时，才暂停并请求补充。
+- 使用多 Agent 不改变风险级别、授权边界或完成标准；主 Agent 对任务拆分、写入冲突、结果复核和最终结论负责。
 
 ## 5. 强制门禁
 
@@ -89,6 +93,9 @@
 | 状态、金额、权限、角色或核心业务语义 | `/documents/business-rules.md`、`/rules/business-analysis.md`「业务规则分析」 | 定位规则和关键边界；规则缺失、冲突或边界不明且影响正确性时暂停 |
 | 术语映射冲突或信息不足 | `/documents/glossary.md`、代码证据 | 可作低置信度推断但不得写成项目事实；歧义影响定位或修改时暂停 |
 | 规则与项目分层、依赖方向或既有约定冲突 | `/documents/architecture.md`、`/documents/coding-standards.md` | 说明冲突，不擅自跨越边界；确认后继续 |
+| 技术选择将改变公开契约、数据形态、安全边界、部署运维模型或产生高回退代价 | `/rules/technology-selection.md`、`/rules/destructive-analysis.md` | 输出证据、候选方案、影响与回退分析；按重大改动门禁获得确认后执行 |
+| 多 Agent 可能并发写同一范围或共享可变状态 | `/rules/agent-collaboration.md` | 只有能证明独立工作区和所有权时才并行写入；否则子 Agent 只读并由单一所有者串行整合，仍无法消除冲突时暂停 |
+| 子 Agent 所需动作超出原任务或任务包授权 | `/rules/agent-collaboration.md` | 缩小子任务或取得明确授权后继续；改为串行不能替代授权 |
 
 ## 6. Agent 执行循环
 
