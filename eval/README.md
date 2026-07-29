@@ -25,6 +25,7 @@
 | [case-d-decision-recall.md](./case-d-decision-recall.md) | microsoft/TypeScript#202 | 决策回查、rejected 决策重提条件 | ✅ | ⚠️ 不适用（见案例说明） |
 | [case-e-autonomous-technology.md](./case-e-autonomous-technology.md) | 综合工程场景 | 从证据识别语言/技术栈、边界内自主选型 | ✅ | ✅ |
 | [case-f-multi-agent-collaboration.md](./case-f-multi-agent-collaboration.md) | 综合工程场景 | 主/子 Agent 契约、单写者与隔离边界、结果验收 | ✅ | ✅ |
+| [case-g-neutral-design.md](./case-g-neutral-design.md) | 综合工程场景 | 设计方式中立、最小充分实现、抽象证据 | ✅ | ✅ |
 
 ## 维护约定
 

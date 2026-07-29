@@ -13,7 +13,7 @@
 - 风险越低流程越简，不确定性越高流程越重。
 - 明确区分已验证事实、待验证推断和未知项，不把推断写成事实。
 - 语言、技术栈和实现方向默认由 Agent 从需求、文档、代码、配置和运行环境中识别或选择；规则只规定证据、兼容、安全、可维护性和验证边界，不预设具体技术答案。
-- 能用现有代码解决的问题，不引入新抽象或新实体；具体编码约束以 `/rules/oop-principles.md` 为准。
+- 能用现有代码解决的问题，不引入新抽象或新实体；具体编码与设计判断以 `/rules/coding-principles.md` 为准。
 - 每轮只处理一个最小、可回退、可验证的动作，不顺带修改无关内容。
 - 证据不足且会影响正确性时暂停；不影响正确性的低风险未知项可标注后继续验证。
 - 工具执行成功只证明操作完成，不能代替动作结果和任务目标验证。
@@ -69,7 +69,7 @@
 | 是否破坏兼容性、数据、安全或核心流程？ | `/rules/destructive-analysis.md` | `/documents/decision-log.md` |
 | 业务规则是什么、如何确认边界？ | `/rules/business-analysis.md`「业务规则分析」 | `/documents/business-rules.md` |
 | 数据怎么流转？ | `/rules/data-flow-methodology.md` | `/documents/data-flow.md` |
-| 代码怎么写？ | `/rules/oop-principles.md` | `/documents/coding-standards.md`、`/documents/architecture.md` |
+| 代码怎么写、如何判断抽象与实现方式？ | `/rules/coding-principles.md` | `/documents/coding-standards.md`、`/documents/architecture.md` |
 | 语言、技术栈或技术方向怎么确定？ | `/rules/technology-selection.md` | 需求边界、代码、构建清单、锁文件、运行与部署配置、`/documents/architecture.md`、`/documents/tech-stack.md` |
 | 如何委派给其他 Agent，或作为子 Agent 返回结果？ | `/rules/agent-collaboration.md` | 当前任务状态、任务包、工作区状态、子任务证据和验证结果 |
 | 如何做决策和回查？ | `/rules/business-analysis.md`「决策框架」「回查」 | `/documents/decision-log.md` |
