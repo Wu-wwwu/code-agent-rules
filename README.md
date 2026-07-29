@@ -23,8 +23,14 @@
 ├─ documents/    # 强约束版配套的项目事实与决策记录示例
 ├─ self/         # Self 独立版：最小核心与按需能力模块
 │  ├─ core.md    # Self 版默认入口（30～60 行）
-│  └─ README.md  # Self 版说明及 Bug、迁移、安全等模块索引
+│  ├─ README.md  # Self 版说明及模块索引
+│  ├─ context.md # 模块：上下文与项目认知
+│  ├─ diagnosis.md # 模块：疑难 Bug 诊断
+│  ├─ change.md  # 模块：兼容与迁移
+│  └─ security.md # 模块：安全控制
 ├─ eval/         # 规则回归验证基准（维护者使用）
+├─ AGENTS.md     # 跨工具通用入口（Claude Code / Codex / Copilot / Cursor / Trae 自动读取）
+├─ CLAUDE.md     # Claude Code 专属入口
 └─ README.md     # 本规则仓库说明
 ```
 
@@ -79,6 +85,25 @@ Self 独立版不会给模型增加其原本没有的推理或工具能力。对
 ```
 
 强约束版按任务分级决定文档和门禁深度；Self 独立版依据影响、不确定性、后果、可逆性和可观测性动态调整认知与验证深度。
+
+## 跨工具使用
+
+规则正文与具体工具无关（见「设计原则 · 跨 Agent 可移植」）。本仓库在根目录与各工具约定路径放置了**入口文件**，它们只做一件事：告诉 Agent「去读哪些规则文件」，不把全部内容塞进上下文——这本身也符合规则要求的「按需取证」原则。
+
+### 自动加载路径
+
+| 工具 | 自动加载的入口文件 | 备注 |
+|------|-------------------|------|
+| Claude Code | `CLAUDE.md` 或 `AGENTS.md` | 两者皆支持 |
+| OpenAI Codex | `AGENTS.md` | 多数 Agent 的事实标准 |
+
+### 选择版本
+
+在所用工具的入口文件中，取消注释「强约束版」或「Self 独立版」那一行即可（两版独立，不要同时启用）：
+
+- **强约束版**：读取并遵循 `rules/agent.md`，按其中“能力路由与知识加载”章节按需加载专项规则与 `documents/`。
+- **Self 独立版**：读取并遵循 `self/core.md`，复杂场景按 `self/README.md` 触发表加载 `context` / `diagnosis` / `change` / `security` 模块。
+
 
 ## 设计原则
 
