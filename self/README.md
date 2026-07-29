@@ -1,4 +1,4 @@
-# Code Agent Rules
+# Code Agent Rules — Self 独立版
 
 > 规范 AI Coding Agent 行为，提示/补充外部认知。
 
