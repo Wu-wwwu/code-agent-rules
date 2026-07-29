@@ -64,12 +64,12 @@
 | 任务问题 | 方法与规则 | 项目事实或记录 |
 |----------|------------|----------------|
 | 需要调查、审查、审计或评估，但不一定修改？ | 本文件 §3、§6 | 代码、配置、测试、日志、运行结果和版本历史 |
-| 变更影响哪些模块、数据、API 和测试？ | `/rules/business-analysis.md` §2 | `/documents/architecture.md`、`/documents/data-flow.md` |
+| 变更影响哪些模块、数据、API 和测试？ | `/rules/business-analysis.md`「变更影响分析」 | `/documents/architecture.md`、`/documents/data-flow.md` |
 | 是否破坏兼容性、数据、安全或核心流程？ | `/rules/destructive-analysis.md` | `/documents/decision-log.md` |
-| 业务规则是什么、如何确认边界？ | `/rules/business-analysis.md` §6 | `/documents/business-rules.md` |
+| 业务规则是什么、如何确认边界？ | `/rules/business-analysis.md`「业务规则分析」 | `/documents/business-rules.md` |
 | 数据怎么流转？ | `/rules/data-flow-methodology.md` | `/documents/data-flow.md` |
 | 代码怎么写？ | `/rules/oop-principles.md` | `/documents/coding-standards.md`、`/documents/architecture.md` |
-| 如何做决策和回查？ | `/rules/business-analysis.md` §3～§4 | `/documents/decision-log.md` |
+| 如何做决策和回查？ | `/rules/business-analysis.md`「决策框架」「回查」 | `/documents/decision-log.md` |
 | 术语如何映射到代码？ | 本文件 §5 | `/documents/glossary.md`、代码符号和引用关系 |
 | Bug 怎么诊断？ | `/rules/diagnosing-bugs.md` | 测试、日志和复现材料 |
 | 数据结构怎么设计？ | `/rules/data-structure-analysis.md` | 模型、Schema 和查询链路 |
@@ -84,9 +84,9 @@
 
 | 触发条件 | 必须依据 | 强制动作与继续条件 |
 |----------|----------|--------------------|
-| 常规及以上改动 | `/rules/business-analysis.md` §4、`/documents/decision-log.md` | 回查历史决策；符合该规则定义的独立缺陷快速路径时可免于检索，但须记录判定依据。命中冲突时暂停，确认或调和后继续。新决策按该规则 §3 判断是否建档 |
+| 常规及以上改动 | `/rules/business-analysis.md`「回查」「决策框架」、`/documents/decision-log.md` | 回查历史决策；符合该规则定义的独立缺陷快速路径时可免于检索，但须记录判定依据。命中冲突时暂停，确认或调和后继续。新决策按“决策框架”判断是否建档 |
 | 中高破坏性或重大改动 | `/rules/destructive-analysis.md` | 完成影响、迁移和回退分析；方案获用户确认后执行 |
-| 状态、金额、权限、角色或核心业务语义 | `/documents/business-rules.md`、`/rules/business-analysis.md` §6 | 定位规则和关键边界；规则缺失、冲突或边界不明且影响正确性时暂停 |
+| 状态、金额、权限、角色或核心业务语义 | `/documents/business-rules.md`、`/rules/business-analysis.md`「业务规则分析」 | 定位规则和关键边界；规则缺失、冲突或边界不明且影响正确性时暂停 |
 | 术语映射冲突或信息不足 | `/documents/glossary.md`、代码证据 | 可作低置信度推断但不得写成项目事实；歧义影响定位或修改时暂停 |
 | 规则与项目分层、依赖方向或既有约定冲突 | `/documents/architecture.md`、`/documents/coding-standards.md` | 说明冲突，不擅自跨越边界；确认后继续 |
 
