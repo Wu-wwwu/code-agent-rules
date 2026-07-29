@@ -1,6 +1,6 @@
 # 项目文档体系
 ---
-description: 项目文档体系的入口与内容基准。Agent 进入项目后首先加载本文件。
+description: 项目文档体系的创建与内容基准。首次需要创建、补全或检查项目文档时加载本文件。
 ---
 
 本文件位于 `/rules/document-init.md`，用于规定项目文档如何创建。规则文件统一存放在 `/rules/`；项目专属文档统一存放在 `/documents/`。文档按需加载，不全文通读，Agent 应根据任务类型精准加载相关章节。
@@ -11,14 +11,14 @@ description: 项目文档体系的入口与内容基准。Agent 进入项目后�
 
 | 文档 | 创建时机 | 最少应包含 | 数据来源 |
 |------|----------|-----------|----------|
-| `project-doc.md` | 首次进入项目 | 项目名称和定位、目录结构概览 | 目录名、solution 文件名、README 首段 |
-| `architecture.md` | 首次进入项目 | 分层结构、模块边界、技术栈、实体→表名映射 | csproj 引用、命名空间、API 路径 |
-| `tech-stack.md` | 确认技术栈后 | 语言/框架/数据库版本、核心依赖 | csproj/Dockerfile/packages.config |
-| `data-flow.md` | 首次涉及数据处理 | 至少 1 条核心数据链路（入口→处理→出口） | Controller→Service→Repository 调用链 |
+| `project-doc.md` | 首次进入项目 | 项目名称和定位、目录结构概览 | 目录名、构建/工程文件名、README 首段 |
+| `architecture.md` | 首次进入项目 | 分层结构、模块边界、技术栈、实体→表名映射 | 依赖声明与引用（如 csproj、package.json、go.mod、pom.xml）、命名空间/包结构、API 路径 |
+| `tech-stack.md` | 确认技术栈后 | 语言/框架/数据库版本、核心依赖 | 构建与依赖清单（如 csproj、packages.config、package.json、pom.xml、go.mod、requirements.txt）、Dockerfile |
+| `data-flow.md` | 首次涉及数据处理 | 至少 1 条核心数据链路（入口→处理→出口） | 入口→处理→存储的调用链（如 Controller→Service→Repository、路由→handler→数据访问层） |
 | `decision-log.md` | 首次做出技术决策 | 索引区（空）+ 待决问题区（空） | — |
 | `coding-standards.md` | 首次代码生成前 | 已观察到的编码模式（≥3 条） | 实际代码风格 |
 | `business-rules.md` | 首次涉及业务逻辑前 | 代码中发现的校验逻辑 | 枚举定义、Guard 条件。**禁止无证据编造** |
-| `glossary.md` | 首次涉及编码/字段语义 | 实体→表名映射、中文→英文缩写（≥3 组） | Entity 类名、[Table] 注解 |
+| `glossary.md` | 首次涉及编码/字段语义 | 实体→表名映射、中文→英文缩写（≥3 组） | 实体类名、表名映射注解或 Schema 定义（如 [Table]、@Entity、表结构文件） |
 
 ## 初始化原则
 

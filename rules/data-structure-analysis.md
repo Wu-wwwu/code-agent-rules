@@ -17,10 +17,14 @@
 从查询推导：WHERE 等值 → 范围 → JOIN（外键必建）→ ORDER BY → INCLUDE。低选择性字段不单独建索引。
 
 ## 写策略阶梯
+以下阈值为启发式默认值；有项目实测数据、数据库官方建议或既有约定时，以项目证据为准。
+
 - N < 100：逐条写入
-- 100–1,000：批量 AddRange + 单次提交
-- 1,000–10,000：COPY 协议批量导入
-- N > 10,000：COPY + 分批（每批约 1,000）
+- 100–1,000：批量插入 API + 单次提交（如 ORM 批量接口：EF Core AddRange、Django bulk_create、SQLAlchemy bulk_insert、MyBatis insertList）
+- 1,000–10,000：数据库原生批量导入协议（如 PostgreSQL COPY、MySQL LOAD DATA、SQL Server BULK INSERT）
+- N > 10,000：原生批量导入 + 分批（每批约 1,000）
 - 边界值 ±10% 范围内向上取下一级
+
+非关系型存储不适用本阶梯，按对应数据库的批量写入文档和项目实测确定。
 
 > 本节为写策略阶梯唯一权威来源。
