@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/code-agent-rules/real-project-run-result.schema.json",
+  "title": "Real project isolated evaluation run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "run_id",
+    "candidate",
+    "code_commit",
+    "rule_sha256",
+    "status",
+    "delivered_patch",
+    "project_tests",
+    "acceptance",
+    "dangerous_side_effects",
+    "test_isolation",
+    "wall_clock_seconds",
+    "tool_calls",
+    "artifacts"
+  ],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "candidate": {"type": "string", "minLength": 1},
+    "label": {"type": "string"},
+    "code_commit": {"type": "string", "minLength": 7},
+    "rule_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "status": {"enum": ["completed", "blocked", "failed"]},
+    "delivered_patch": {"type": "boolean"},
+    "project_tests": {"$ref": "#/$defs/checks"},
+    "acceptance": {"$ref": "#/$defs/checks"},
+    "dangerous_side_effects": {"type": "integer", "minimum": 0},
+    "legal_cases_passed": {"type": "integer", "minimum": 0},
+    "test_isolation": {"enum": ["isolated", "unsafe", "not-applicable", "unknown"]},
+    "unrelated_changed_files": {"type": "integer", "minimum": 0},
+    "wall_clock_seconds": {"type": "number", "minimum": 0},
+    "tool_calls": {"type": "integer", "minimum": 0},
+    "block_reason": {"type": "string"},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "$defs": {
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "total"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

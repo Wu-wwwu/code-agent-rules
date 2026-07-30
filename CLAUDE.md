@@ -1,1 +1,1 @@
-self/core.md
+mini/anchors.md

@@ -14,6 +14,7 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parent
 EDITIONS = {
+    "mini": ("mini/anchors.md", ("mini", "documents")),
     "rules": ("rules/agent.md", ("rules", "documents")),
     "self": ("self/core.md", ("self",)),
 }
@@ -192,6 +193,8 @@ def install_agent(args: argparse.Namespace) -> None:
     source_entry = (ROOT / entry).resolve()
     if not source_entry.is_file():
         raise InstallError(f"规则入口不存在: {source_entry}")
+    if destination == source_entry:
+        raise InstallError("用户级规则入口不能是当前 edition 的规范规则入口源文件")
 
     operation = pointer_operation(destination, source_entry.as_posix())
     preflight((operation,), force=args.force)
@@ -211,7 +214,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     project = subparsers.add_parser("project", help="复制规则到项目并写项目级入口")
     project.add_argument("target", help="目标项目目录")
-    project.add_argument("--edition", choices=EDITIONS, default="self")
+    project.add_argument("--edition", choices=EDITIONS, default="mini")
     project.add_argument("--entry-file", default="AGENTS.md", help="项目规则入口文件名或相对路径")
     project.add_argument("--force", action="store_true", help="备份后覆盖冲突的规则/入口文件；项目文档仍保留")
     project.add_argument("--dry-run", action="store_true", help="只显示计划，不写文件")
@@ -219,7 +222,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     agent = subparsers.add_parser("agent", help="为指定 Code Agent 写用户级绝对规则指针")
     agent.add_argument("agent", choices=(*AGENT_PRESETS, "custom"))
-    agent.add_argument("--edition", choices=EDITIONS, default="self")
+    agent.add_argument("--edition", choices=EDITIONS, default="mini")
     agent.add_argument("--entry-file", help="覆盖预设入口；custom 必填")
     agent.add_argument("--force", action="store_true", help="备份后覆盖已有不同入口")
     agent.add_argument("--dry-run", action="store_true", help="只显示计划，不写文件")

@@ -26,7 +26,21 @@
 
 ## 返回与验收
 
-子 Agent 区分已验证事实、推断和未知，列出修改范围、验证结果、失败项、残余风险和下一步，并引用具体证据。编排者复核关键事实、diff、测试和跨任务接口，检查组合风险，并将结果标记为 `accepted`、`needs-verification`、`needs-rework` 或 `blocked`；只有 `accepted` 内容可直接并入全局状态，只有全局标准通过后才声明完成。
+子 Agent 使用可核验的统一返回契约，并区分已验证事实、推断和未知：
+
+```text
+status: completed | blocked | failed
+changed_files:
+commands_run:
+test_results:
+artifacts:
+remaining_risks:
+block_reason:
+```
+
+`completed` 必须有符合任务包的实际产物和验证证据；`blocked` 必须给出尝试过的能力或路径、可复核失败证据、未完成范围与解除条件；`failed` 必须说明失败动作、已知副作用和可安全重试的前提。没有写入授权的调查任务可以零修改完成，但必须交付约定的证据产物。子 Agent 自报测试通过不替代编排者在候选上下文之外复验。
+
+编排者复核关键事实、完整 diff、测试和跨任务接口，检查组合风险，并将结果标记为 `accepted`、`needs-verification`、`needs-rework` 或 `blocked`；只有 `accepted` 内容可直接并入全局状态，只有全局标准通过后才声明完成。并行候选使用相互独立且不能读取其他候选结果的工作区；对照评测由编排者在候选之外运行同一验收，并记录输入快照、命令、结果和产物标识。
 
 子任务被验收、退回或判定阻塞后结束其活动上下文。编排者只保留已复核事实、验证结果、未解决项和风险变化，不长期保留完整子 Agent 对话，也不为保持并行形式继续拆分。
 

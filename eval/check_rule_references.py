@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_FILES = tuple(ROOT.rglob("*.md"))
 AGENTS_FILE = ROOT / "AGENTS.md"
-LOCAL_AGENT_POINTERS = {"rules/agent.md", "self/core.md"}
+LOCAL_AGENT_POINTERS = {"mini/anchors.md", "rules/agent.md", "self/core.md"}
 AGENT_ENTRY_SUFFIXES = tuple(f"/{path}" for path in LOCAL_AGENT_POINTERS)
 
 STABLE_REFERENCE = re.compile(
@@ -61,7 +61,7 @@ def check_agents_pointer(errors: list[str]) -> None:
     if not is_absolute:
         if normalized not in LOCAL_AGENT_POINTERS:
             errors.append(
-                "AGENTS.md: 相对指针只能是 rules/agent.md 或 self/core.md"
+                "AGENTS.md: 相对指针只能是 mini/anchors.md、rules/agent.md 或 self/core.md"
             )
             return
         if not (ROOT / normalized).is_file():
@@ -70,7 +70,7 @@ def check_agents_pointer(errors: list[str]) -> None:
 
     if not normalized.endswith(AGENT_ENTRY_SUFFIXES):
         errors.append(
-            "AGENTS.md: 固定路径必须指向 rules/agent.md 或 self/core.md"
+            "AGENTS.md: 固定路径必须指向 mini/anchors.md、rules/agent.md 或 self/core.md"
         )
         return
 
