@@ -9,6 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKDOWN_FILES = tuple(ROOT.rglob("*.md"))
+AGENTS_FILE = ROOT / "AGENTS.md"
+LOCAL_AGENT_POINTERS = {"rules/agent.md", "self/core.md"}
+AGENT_ENTRY_SUFFIXES = tuple(f"/{path}" for path in LOCAL_AGENT_POINTERS)
 
 STABLE_REFERENCE = re.compile(
     r"`(?P<path>/(?:rules|self)/[^`]+\.md)`(?P<titles>(?:「[^」]+」)+)"
@@ -19,6 +22,7 @@ NUMBER_PREFIX = re.compile(r"^\d+(?:\.\d+)*[.、]?\s*")
 LEGACY_SECTION_REFERENCE = re.compile(
     r"(?:`[^`\r\n]+\.md`|(?<![\w./-])/?[\w./-]+\.md)\s*§"
 )
+WINDOWS_ABSOLUTE_PATH = re.compile(r"^[A-Za-z]:[\\/]")
 
 
 def normalized_heading(raw_heading: str) -> str:
@@ -27,9 +31,58 @@ def normalized_heading(raw_heading: str) -> str:
     return NUMBER_PREFIX.sub("", heading).strip()
 
 
+def check_agents_pointer(errors: list[str]) -> None:
+    """确保 AGENTS.md 的最终状态是唯一、无包装的规则入口路径。"""
+    if not AGENTS_FILE.is_file():
+        errors.append("AGENTS.md: 文件不存在，无法提供跨工具规则指针")
+        return
+
+    content = AGENTS_FILE.read_text(encoding="utf-8")
+    lines = content.splitlines()
+    if len(lines) != 1 or not lines[0]:
+        errors.append("AGENTS.md: 必须且只能包含一行非空规则路径")
+        return
+
+    pointer = lines[0]
+    if pointer != pointer.strip():
+        errors.append("AGENTS.md: 路径前后不得包含空白")
+        return
+    if pointer.startswith(("#", "-", "*", "`")) or pointer.endswith("`"):
+        errors.append("AGENTS.md: 只能写裸路径，不得包含 Markdown 标记或说明")
+        return
+
+    normalized = pointer.replace("\\", "/")
+    is_absolute = (
+        normalized.startswith("/")
+        or pointer.startswith("\\\\")
+        or WINDOWS_ABSOLUTE_PATH.match(pointer) is not None
+    )
+
+    if not is_absolute:
+        if normalized not in LOCAL_AGENT_POINTERS:
+            errors.append(
+                "AGENTS.md: 相对指针只能是 rules/agent.md 或 self/core.md"
+            )
+            return
+        if not (ROOT / normalized).is_file():
+            errors.append(f"AGENTS.md: 指针目标不存在: {pointer}")
+        return
+
+    if not normalized.endswith(AGENT_ENTRY_SUFFIXES):
+        errors.append(
+            "AGENTS.md: 固定路径必须指向 rules/agent.md 或 self/core.md"
+        )
+        return
+
+    if not Path(pointer).is_file():
+        errors.append(f"AGENTS.md: 固定路径不可访问或目标不存在: {pointer}")
+
+
 def main() -> int:
     errors: list[str] = []
     heading_cache: dict[Path, set[str]] = {}
+
+    check_agents_pointer(errors)
 
     for source in MARKDOWN_FILES:
         content = source.read_text(encoding="utf-8")

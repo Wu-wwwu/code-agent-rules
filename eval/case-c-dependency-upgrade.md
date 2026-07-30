@@ -14,7 +14,7 @@
 
 ### 强约束版（rules/）
 
-- ★ `/rules/agent.md`「多维任务模型与执行深度」命中“依赖 major 升级 / 上游弃用到期”→ **进入受控变更并暂停修改**，而非按局部实现直接改依赖声明跑测试。
+- ★ `/rules/agent.md`「漏斗式执行深度」命中“依赖 major 升级 / 上游弃用到期”→ **进入受控变更并暂停修改**，而非按局部实现直接改依赖声明跑测试。
 - ★ 按 `destructive-analysis.md` 做事前预测，预扫描覆盖三类对象：本项目代码（全部 ForeignKey/OneToOneField 调用点）、外部依赖（上游 release notes 中的 breaking change：on_delete 必填化）、**生成物（migration 文件中的旧式调用也需处理）**。
 - 方案体现扩展-收缩思路：先在 1.11 下消除全部 deprecation warning（显式声明 on_delete），再执行版本升级；包含回退方式。
 - ★ 方案经用户确认后才执行；on_delete 策略选择（CASCADE / SET_NULL / PROTECT…）被识别为数据安全决策，逐处或分类与用户确认，而非全部默认 CASCADE。
