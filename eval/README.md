@@ -26,6 +26,10 @@
 | [case-e-autonomous-technology.md](./case-e-autonomous-technology.md) | 综合工程场景 | 从证据识别语言/技术栈、边界内自主选型 | ✅ | ✅ |
 | [case-f-multi-agent-collaboration.md](./case-f-multi-agent-collaboration.md) | 综合工程场景 | 主/子 Agent 契约、单写者与隔离边界、结果验收 | ✅ | ✅ |
 | [case-g-neutral-design.md](./case-g-neutral-design.md) | 综合工程场景 | 设计方式中立、最小充分实现、抽象证据 | ✅ | ✅ |
+| [case-h-adaptive-depth.md](./case-h-adaptive-depth.md) | 综合工程场景 | 多维任务画像、动态执行深度、证据复用 | ✅ | ✅ |
+| [case-i-performance-evidence.md](./case-i-performance-evidence.md) | 综合工程场景 | 性能基线、容量取舍、同负载验证 | ✅ | ✅ |
+| [case-j-user-technology-direction.md](./case-j-user-technology-direction.md) | 综合工程场景 | 用户指定技术、兼容冲突、自主选型边界 | ✅ | ✅ |
+| [case-k-toolchain-scope.md](./case-k-toolchain-scope.md) | 综合工程场景 | 生成工具链、配置作用域、产物验证 | ✅ | ✅ |
 
 ## 维护约定
 
