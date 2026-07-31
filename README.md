@@ -27,7 +27,7 @@
 │  ├─ coding-principles.md # 中立的编码行为、设计判断与验证边界
 │  ├─ technology-selection.md # 从项目证据识别技术栈并在边界内自主选型
 │  └─ agent-collaboration.md # 多 Agent 编排与子 Agent 契约
-├─ documents/    # 强约束版配套的项目事实与决策记录示例
+├─ documents/    # Mini / 强约束版可选的项目文档模板
 ├─ self/         # Self 独立版：最小核心与按需能力模块
 │  ├─ core.md    # Self 版精简默认入口
 │  ├─ README.md  # Self 版说明及模块索引
@@ -48,7 +48,7 @@
 
 | 文件 | 定位 | 核心内容 |
 |------|------|----------|
-| `mini/agent.md` | Mini 版默认入口 | 常驻安全规范、六步执行循环与按需方法路由 |
+| `mini/agent.md` | Mini 版默认入口 | 常驻证据、安全、执行与完成门禁，并按需路由专项方法 |
 | `mini/triggers.md` | Mini 版候选路由短表 | 将业务、诊断、迁移、性能、多 Agent 等信号映射到专项方法，执行细节下沉到方法文件 |
 | `rules/agent.md` | 循环控制总纲 | 任务状态恢复、漏斗式执行深度、能力路由与退出、门禁和循环控制 |
 | `self/core.md` | Self 版最小入口 | 目标、证据、最小动作、反馈、安全停机和完成门禁 |

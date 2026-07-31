@@ -1,25 +1,20 @@
-# 专项方法路由
+# 专项路由
 
-本表只识别候选方法；详细适用条件、快速路径和执行要求在对应方法中确认。多个信号同时出现时按依赖顺序加载覆盖当前动作所需的最小方法集合，不得用一个方法替代另一个方法的强制义务，义务完成后退出。
+本表只决定加载路径，不包含执行规则。每次只加载当前动作命中的最少方法；多项同时命中则取并集，任何方法都不能替代另一方法的门禁。义务完成即退出。
 
-以下情况保持 agent.md 轻量路径：已有新鲜且适用的方法上下文；任务局部、直接可验证且无风险升级或方案选择；仅作一般解释且不需要专项判断、证据链、方案或风险结论。用户已给出决策可以缩短探索，但不能跳过任何已命中方法规定的验证、隔离、迁移、回退或确认门禁，尤其是数据删除/覆盖、权限与安全、配置覆盖、外部副作用、金额语义和公开契约变更。
+| 信号 | 方法 |
+|---|---|
+| 删除/覆盖数据、改权限或安全、覆盖配置、外部副作用、公开 API/Schema/共享契约变化 | `methods/destructive-analysis.md` |
+| 金额/支付/结算，或状态/权限/角色的目标业务语义 | `methods/business-rules.md` |
+| 历史技术决策可能约束当前方案 | `methods/decision-recall.md` |
+| major 升级、弃用到期或上游移除 | `methods/dependency-upgrade.md` |
+| 生成器、构建/格式化/编译工具、CI/CD 或生成物变化 | `methods/toolchain-scope.md` |
+| 独立子任务并行调查或专业复核确有净收益 | `methods/multi-agent.md` |
+| 技术栈不明、新项目选型或技术方向改变系统边界 | `methods/technology-selection.md` |
+| 竞态/时序/非确定性/跨模块 Bug，或无法稳定复现 | `methods/bug-diagnosis.md` |
+| 性能、容量、延迟、吞吐或资源消耗用于目标、选型或完成结论 | `methods/performance-evidence.md` |
+| 新增抽象/分层/模式、提取公共代码或结构重构 | `methods/neutral-design.md` |
+| 需从代码/Schema/表识别实体、关系或表示变换 | `methods/data-entity-analysis.md` |
+| 新功能、计划、跨模块、上下文恢复，或实现路径/验证接缝不清 | `methods/project-context.md` |
 
-| # | 候选信号 | 加载方法 |
-|---|---------|---------|
-| T1 | 数据删除/覆盖、权限修改、配置覆盖或有副作用的外部操作 | `methods/destructive-analysis.md` |
-| T2 | 公开 API、Schema 或共享数据契约变更 | `methods/destructive-analysis.md` |
-| T3 | 金额、货币、支付/退款/结算，或状态/权限/角色业务语义 | `methods/business-rules.md` |
-| T4 | 需要回查历史技术决策或既有约定 | `methods/decision-recall.md` |
-| T5 | 依赖 major 升级、弃用到期或上游移除 | `methods/dependency-upgrade.md` |
-| T6 | 代码生成器、构建/格式化/编译工具或 CI/CD 变化 | `methods/toolchain-scope.md` |
-| T7 | 值得拆分的独立子任务、跨模块并行调查或专业审查 | `methods/multi-agent.md` |
-| T8 | 技术栈不明确、新项目选型或技术方向可能改变系统边界 | `methods/technology-selection.md` |
-| T9 | 竞态/时序/非确定性/跨模块 Bug，或无法稳定复现 | `methods/bug-diagnosis.md` |
-| T10 | 性能、容量、延迟、吞吐或资源消耗是目标或方案依据 | `methods/performance-evidence.md` |
-| T11 | 新增抽象/设计模式/分层，提取公共代码或重构结构 | `methods/neutral-design.md` |
-| T12 | 从代码/Schema/表识别实体、关系或表示变换 | `methods/data-entity-analysis.md` |
-| T13 | 新功能、计划、跨模块、上下文恢复或实现路径不清 | `methods/project-context.md` |
-
-准备读取或写入目标项目的 `documents/*.md` 时，由已加载的方法继续加载支持方法 `methods/project-documents.md`。
-
-路由裁决：Bug 任务以 T9 为主；仅当目标、范围、模块边界或实现路径不足以支持诊断时，先用 T13 补齐缺口再返回 T9，不重复项目扫描。权限修改命中 T1 以控制执行风险；权限/角色目标语义不明确时同时命中 T3 以确认业务规则，两者不得互相替代。
+仅在已加载方法准备实际读写目标项目的 `documents/*.md` 时，再加载 `methods/project-documents.md`。Bug 优先走诊断；只有上下文不足以诊断时才补项目上下文。权限执行风险走破坏性分析；权限目标语义不明时再叠加业务规则。

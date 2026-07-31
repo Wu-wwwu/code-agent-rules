@@ -40,6 +40,12 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue((target / "mini" / "triggers.md").is_file())
             self.assertTrue((target / "documents" / "business-rules.md").is_file())
             self.assertEqual("mini/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
+            installed_text = "\n".join(
+                path.read_text(encoding="utf-8")
+                for path in (target / "documents").glob("*.md")
+            )
+            for edition_path in ("/mini/", "/rules/", "/self/"):
+                self.assertNotIn(edition_path, installed_text)
 
     def test_rules_project_preserves_existing_documents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
