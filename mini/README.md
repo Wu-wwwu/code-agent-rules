@@ -25,9 +25,11 @@ mini/
 ├── anchors.md             # L1 基础锚点（每轮纳入上下文，约60行）
 ├── triggers.md            # L2 触发规则（按需加载，约80行）
 ├── check_references.py    # 交叉引用自检脚本
-├── methods/               # L3 参考方法（按需查阅，10 个文件）
+├── methods/               # L3 参考方法（按需查阅，12 个文件）
 │   ├── destructive-analysis.md
 │   ├── business-rules.md
+│   ├── project-documents.md
+│   ├── data-entity-analysis.md
 │   ├── bug-diagnosis.md
 │   ├── decision-recall.md
 │   ├── dependency-upgrade.md
@@ -36,9 +38,25 @@ mini/
 │   ├── technology-selection.md
 │   ├── performance-evidence.md
 │   └── neutral-design.md
+└── eval/                  # 规则遵循率对照验证
+    ├── README.md
+    ├── template.md
+    ├── placement-ab-template.md
+    ├── case-01-money-float-rounding.md
+    └── case-02-documents-missing.md
 ```
 
-> **外部依赖**：部分方法（decision-recall、business-rules）引用同级 `../documents/` 目录中的 `decision-log.md`、`glossary.md`、`business-rules.md`。使用 `install.py` 安装 mini 版时会同时补充缺失的 `documents/` 模板，已有项目文档不会被覆盖。
+## 可选项目文档
+
+`documents/` 是位于**目标项目根目录**的可选项目记忆库，不是本规则集默认已经具备的外部依赖。当前规则只会用到以下文件：
+
+| 文件 | 职责 | 缺失时的含义 |
+|------|------|--------------|
+| `documents/business-rules.md` | 保存有可定位证据的业务规则 | 当前没有可用的持久化规则记录，不代表业务没有规则 |
+| `documents/decision-log.md` | 保存需长期回查的技术决策及状态 | 当前无法完成历史档案回查，不代表历史上没有决策 |
+| `documents/glossary.md` | 保存经验证的术语、代码实体和存储映射 | 仅失去同义词扩展能力，可直接从代码和当前上下文检索 |
+
+读取前必须先检查文件是否存在、是否只是示例/占位、是否适用于当前项目。缺失文档不会自动阻塞任务，也不得被解释成“没有规则”或“没有历史决策”。只有当前任务确实需要持久化记录，且写入位于用户授权的项目范围内时，才按需创建最小文件；否则使用代码、配置、测试、用户说明和当前会话证据继续，并明确历史覆盖范围。完整流程和空模板见 `methods/project-documents.md`。
 
 
 ## 使用方式
@@ -55,4 +73,4 @@ mini/
 执行 anchors.md 中的每步核对清单
 ```
 
-部署时只需将 `anchors.md` 加入系统提示或平台自动加载路径。其余文件由 agent 按需自行读取。命中专项规则后，应在真正受控的决策或动作旁重述一条语义完整的自然语言约束；不要只放一个需要再次查表才能理解的符号索引。
+部署时只需将 `anchors.md` 加入系统提示或平台自动加载路径。其余规则文件由 agent 按需自行读取；目标项目不要求预先存在 `documents/`。命中专项规则后，应在真正受控的决策或动作旁重述一条语义完整的自然语言约束；不要只放一个需要再次查表才能理解的符号索引。

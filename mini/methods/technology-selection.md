@@ -17,5 +17,5 @@
 ## 输出要求
 
 - 普通选择：简要记录采用方向、关键证据、排除的硬冲突和验证方式
-- 需要历史可追溯：按决策框架记录到 decision-log.md
+- 需要历史可追溯：按决策框架形成记录；写入前按 `methods/project-documents.md` 检查或按需初始化目标项目的 `documents/decision-log.md`
 - 不要为低风险选择制造冗长方案会

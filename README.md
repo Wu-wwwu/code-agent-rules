@@ -55,7 +55,7 @@
 | `self/README.md` | Self 版说明与能力索引 | 独立使用方式及按触发场景加载上下文、Bug、迁移或安全模块 |
 | `rules/business-analysis.md` | 业务决策 | 变更影响分析、决策四步框架、冲突回查、优先级体系 |
 | `rules/data-flow-methodology.md` | 数据追踪 | 六步追踪法、固定推导顺序、节点标注规范 |
-| `rules/data-structure-analysis.md` | 数据建模与容量 | 实体识别、关系建模、字段推导、索引、性能基线和写入策略 |
+| `rules/data-structure-analysis.md` | 数据建模与容量 | 中性数据实体识别、证据化关系、构件变换、字段推导、索引、性能基线和写入策略 |
 | `rules/destructive-analysis.md` | 风险控制 | 变更分级、事前预测、工具链与配置作用域、扩展-收缩迁移模式 |
 | `rules/diagnosing-bugs.md` | 排错流程 | 反馈回路→复现最小化→可证伪假设→插桩→修复→清理 |
 | `rules/document-init.md` | 文档体系 | 8 类项目文档的创建时机、内容基准、初始化原则 |
@@ -71,7 +71,7 @@
 
 在 AI Coding Agent 的系统提示或项目配置中选择一份版本引用。以 Cline 为例，可将所选版本配置为自动加载；其他 Agent 平台对应机制类似：
 
-- **Mini 默认版**：默认只加载 `mini/anchors.md`，命中触发信号时通过 `mini/triggers.md` 加载对应 `methods/`。保留安全、证据、闭环和关键专项能力，同时降低常驻上下文成本；决策回查与业务规则方法依赖 `documents/`。
+- **Mini 默认版**：默认只加载 `mini/anchors.md`，命中触发信号时通过 `mini/triggers.md` 加载对应 `methods/`。保留安全、证据、闭环和关键专项能力，同时降低常驻上下文成本；`documents/` 是按需检查和初始化的可选项目记忆库，缺失本身不阻塞普通任务。
 - **强约束版**：使用 `rules/agent.md` 及其专项规则，并配套 `documents/`。含固定项目文档体系与决策回查（组织记忆）。适合团队需要统一项目记忆、明确门禁和可审计流程的场景。
 - **Self 独立版**：默认只加载 `self/core.md`；触发复杂场景时再依据 `self/README.md` 加载本目录对应模块。适合资料形态不固定，希望 Agent 从代码、配置、测试、运行结果、历史和用户说明中动态形成项目认知，并自主确定语言、技术栈和实现方向的场景。Self 版不提供决策档案与回查等组织记忆能力；长周期项目如需该能力，应采用强约束版或自行补充决策记录。
 
@@ -148,7 +148,7 @@ py install.py project D:/work/my-project --edition self
 py install.py project D:/work/my-project --edition rules
 ```
 
-- Mini 版复制 `mini/`，补充项目中尚不存在的 `documents/` 模板，并写入 `AGENTS.md -> mini/anchors.md`。
+- Mini 版复制 `mini/`，补充项目中尚不存在的 `documents/` 模板，并写入 `AGENTS.md -> mini/anchors.md`；这些文档是可选项目记忆，规则运行不以其预先存在为前提。
 - Self 版复制 `self/` 并写入 `AGENTS.md -> self/core.md`；使用 `--edition self` 显式选择。
 - 强约束版复制 `rules/`，补充项目中尚不存在的 `documents/` 模板，并写入 `AGENTS.md -> rules/agent.md`；已有项目文档始终保留，不会被模板覆盖。
 - 目标工具使用其他项目入口文件时，可通过 `--entry-file CLAUDE.md` 或相应相对路径指定。

@@ -76,12 +76,13 @@
 | 性能、容量或资源目标如何证明？ | `/rules/coding-principles.md`「验证与自检」；涉及查询、持久化或批量写入时再加载 `/rules/data-structure-analysis.md`「性能、容量与写入策略」 | 基准、剖析、查询计划、负载模型、资源指标和生产约束 |
 | 代码生成、构建工具链、生成物或配置作用域如何处理？ | `/rules/destructive-analysis.md`「事前预测」「工具链与作用域边界」 | 依赖声明、锁文件、生成命令与产物、CI/CD、容器和部署配置 |
 | 业务规则是什么、如何确认边界？ | `/rules/business-analysis.md`「业务规则分析」 | `/documents/business-rules.md` |
-| 数据怎么流转？ | `/rules/data-flow-methodology.md` | `/documents/data-flow.md` |
+| 如何从代码、Schema 和表中识别数据实体并保持关系？ | `/rules/data-structure-analysis.md`「概念边界」「实体识别与归并」「关系建模」 | 模型、Schema、查询、映射配置、测试、`/documents/glossary.md` |
+| 数据构件如何创建、变换和流转？ | `/rules/data-flow-methodology.md`、`/rules/data-structure-analysis.md`「构件创建与变换」 | `/documents/data-flow.md` |
 | 代码怎么写、如何判断抽象与实现方式？ | `/rules/coding-principles.md` | `/documents/coding-standards.md`、`/documents/architecture.md` |
 | 语言、技术栈或技术方向怎么确定？ | `/rules/technology-selection.md` | 需求边界、代码、构建清单、锁文件、运行与部署配置、`/documents/architecture.md`、`/documents/tech-stack.md` |
 | 如何委派给其他 Agent，或作为子 Agent 返回结果？ | `/rules/agent-collaboration.md` | 当前任务状态、任务包、工作区状态、子任务证据和验证结果 |
 | 如何做决策和回查？ | `/rules/business-analysis.md`「决策框架」「回查」 | `/documents/decision-log.md` |
-| 术语如何映射到代码？ | 本文件「能力路由与知识加载」 | `/documents/glossary.md`、代码符号和引用关系 |
+| 术语如何映射到代码？ | `/rules/data-structure-analysis.md`「概念边界」 | `/documents/glossary.md`、代码符号和有证据的引用关系 |
 | Bug 怎么诊断？ | `/rules/diagnosing-bugs.md` | 测试、日志和复现材料 |
 | 数据结构怎么设计？ | `/rules/data-structure-analysis.md` | 模型、Schema 和查询链路 |
 | 项目文档怎么创建？ | `/rules/document-init.md` | `/documents/` |
