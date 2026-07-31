@@ -11,16 +11,47 @@ from pathlib import Path
 
 MINI_ROOT = Path(__file__).resolve().parent
 METHODS_DIR = MINI_ROOT / "methods"
+ROUTED_METHODS = {
+    "bug-diagnosis.md",
+    "business-rules.md",
+    "data-entity-analysis.md",
+    "decision-recall.md",
+    "dependency-upgrade.md",
+    "destructive-analysis.md",
+    "multi-agent.md",
+    "neutral-design.md",
+    "performance-evidence.md",
+    "project-context.md",
+    "technology-selection.md",
+    "toolchain-scope.md",
+}
+SUPPORT_METHODS = {"project-documents.md"}
+MAX_TRIGGER_LINES = 30
 
 
 def check_triggers():
     """Check all method references in triggers.md."""
     triggers = MINI_ROOT / "triggers.md"
     if not triggers.exists():
-        return []  # No triggers file — nothing to check
+        return ["  triggers.md -> NOT FOUND"]
     content = triggers.read_text(encoding="utf-8")
     refs = re.findall(r"`methods/([^`]+\.md)`", content)
-    return _resolve(refs, source="triggers.md")
+    errors = _resolve(refs, source="triggers.md")
+    routed_refs = set(refs) - SUPPORT_METHODS
+    if routed_refs != ROUTED_METHODS:
+        missing = sorted(ROUTED_METHODS - routed_refs)
+        extra = sorted(routed_refs - ROUTED_METHODS)
+        if missing:
+            errors.append(f"  triggers.md: missing routes -> {', '.join(missing)}")
+        if extra:
+            errors.append(f"  triggers.md: unexpected routes -> {', '.join(extra)}")
+    line_count = len(content.splitlines())
+    if line_count > MAX_TRIGGER_LINES:
+        errors.append(
+            f"  triggers.md: {line_count} lines exceeds short-table limit "
+            f"({MAX_TRIGGER_LINES})"
+        )
+    return errors
 
 
 def check_methods():
