@@ -1,1 +1,1 @@
-mini/anchors.md
+mini/agent.md

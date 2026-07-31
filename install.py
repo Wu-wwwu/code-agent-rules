@@ -14,7 +14,7 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parent
 EDITIONS = {
-    "mini": ("mini/anchors.md", ("mini", "documents")),
+    "mini": ("mini/agent.md", ("mini", "documents")),
     "rules": ("rules/agent.md", ("rules", "documents")),
     "self": ("self/core.md", ("self",)),
 }

@@ -36,10 +36,10 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory)
             self.assertEqual(0, self.run_installer("project", directory))
-            self.assertTrue((target / "mini" / "anchors.md").is_file())
+            self.assertTrue((target / "mini" / "agent.md").is_file())
             self.assertTrue((target / "mini" / "triggers.md").is_file())
             self.assertTrue((target / "documents" / "business-rules.md").is_file())
-            self.assertEqual("mini/anchors.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
+            self.assertEqual("mini/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
 
     def test_rules_project_preserves_existing_documents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -65,7 +65,7 @@ class InstallerTests(unittest.TestCase):
             target = Path(directory)
             (target / "AGENTS.md").write_text("old\n", encoding="utf-8")
             self.assertEqual(0, self.run_installer("project", directory, "--force"))
-            self.assertEqual("mini/anchors.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
+            self.assertEqual("mini/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
             backups = list(target.glob("AGENTS.md.bak.*"))
             self.assertEqual(1, len(backups))
             self.assertEqual("old\n", backups[0].read_text(encoding="utf-8"))
@@ -92,14 +92,14 @@ class InstallerTests(unittest.TestCase):
                 self.run_installer("agent", "custom", "--entry-file", str(entry_file)),
             )
             self.assertEqual(
-                f"{(ROOT / 'mini' / 'anchors.md').resolve().as_posix()}\n",
+                f"{(ROOT / 'mini' / 'agent.md').resolve().as_posix()}\n",
                 entry_file.read_text(encoding="utf-8"),
             )
 
     def test_agent_entry_cannot_overwrite_edition_source(self) -> None:
         flag_sets = ((), ("--force",), ("--dry-run",), ("--force", "--dry-run"))
         editions = (
-            ("mini", Path("mini/anchors.md")),
+            ("mini", Path("mini/agent.md")),
             ("self", Path("self/core.md")),
             ("rules", Path("rules/agent.md")),
         )
@@ -110,7 +110,7 @@ class InstallerTests(unittest.TestCase):
                         with tempfile.TemporaryDirectory() as directory:
                             isolated_root = Path(directory)
                             sources = {
-                                Path("mini/anchors.md"): b"mini source\n",
+                                Path("mini/agent.md"): b"mini source\n",
                                 Path("self/core.md"): b"self source\n",
                                 Path("rules/agent.md"): b"rules source\n",
                             }
@@ -161,7 +161,7 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(
                 1,
                 self.run_installer(
-                    "project", directory, "--entry-file", str(Path("mini") / "anchors.md")
+                    "project", directory, "--entry-file", str(Path("mini") / "agent.md")
                 ),
             )
             self.assertEqual([], list(Path(directory).iterdir()))
