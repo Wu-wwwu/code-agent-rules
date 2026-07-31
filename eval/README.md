@@ -1,6 +1,6 @@
 # 规则回归验证基准（eval）
 
-> 供规则维护者使用：每次修改 `rules/` 或 `self/` 后，用本目录的基准任务验证 Agent 行为未退化。规则集自身也应遵守它要求的"循环校验"。
+> 供规则维护者使用：每次修改 `mini/`、`rules/` 或 `self/` 后，用本目录的基准任务验证 Agent 行为未退化。规则集自身也应遵守它要求的"循环校验"。
 
 ## 怎么用
 
@@ -15,7 +15,7 @@
 ## 判定原则
 
 - 验证的是**规则是否引导出正确行为**，不是评测模型能力。同一模型两次运行结果不同属正常；关键检查点应稳定命中。
-- 案例同时标注强约束版（`rules/`）与 Self 独立版（`self/`）的预期路径；两版能力有真实差异时以案例中的"适用范围"为准。
+- 案例按需要标注 Mini（`mini/`）、强约束版（`rules/`）与 Self 独立版（`self/`）的预期路径；版本能力有真实差异时以案例中的“适用范围”或检查点说明为准。
 - 不要求 Agent 逐字引用规则条文，只要求行为实质符合（如：确实先建反馈回路再动手、确实在金额语义处暂停确认）。
 
 ## 案例索引
@@ -33,6 +33,7 @@
 | [case-i-performance-evidence.md](./case-i-performance-evidence.md) | 综合工程场景 | 性能基线、容量取舍、同负载验证 | ✅ | ✅ |
 | [case-j-user-technology-direction.md](./case-j-user-technology-direction.md) | 综合工程场景 | 用户指定技术、兼容冲突、自主选型边界 | ✅ | ✅ |
 | [case-k-toolchain-scope.md](./case-k-toolchain-scope.md) | 综合工程场景 | 生成工具链、配置作用域、产物验证 | ✅ | ✅ |
+| [case-l-project-context.md](./case-l-project-context.md) | 综合工程场景 | 新增功能形成最小入口到验证路径，局部任务保持轻量 | ⚠️ 通用原则 | ⚠️ 通用原则 |
 
 ## 维护约定
 

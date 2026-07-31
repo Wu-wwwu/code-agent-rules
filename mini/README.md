@@ -23,12 +23,13 @@
 mini/
 ├── README.md              # 本文件
 ├── anchors.md             # L1 基础锚点（每轮纳入上下文，约60行）
-├── triggers.md            # L2 触发规则（按需加载，约80行）
+├── triggers.md            # L2 触发规则（按需加载，约90行）
 ├── check_references.py    # 交叉引用自检脚本
-├── methods/               # L3 参考方法（按需查阅，12 个文件）
+├── methods/               # L3 参考方法（按需查阅，13 个文件）
 │   ├── destructive-analysis.md
 │   ├── business-rules.md
 │   ├── project-documents.md
+│   ├── project-context.md
 │   ├── data-entity-analysis.md
 │   ├── bug-diagnosis.md
 │   ├── decision-recall.md
@@ -38,25 +39,26 @@ mini/
 │   ├── technology-selection.md
 │   ├── performance-evidence.md
 │   └── neutral-design.md
-└── eval/                  # 规则遵循率对照验证
-    ├── README.md
-    ├── template.md
-    ├── placement-ab-template.md
-    ├── case-01-money-float-rounding.md
-    └── case-02-documents-missing.md
+../eval/                   # 仓库级规则回归验证（含项目上下文案例）
+└── case-l-project-context.md
 ```
 
 ## 可选项目文档
 
-`documents/` 是位于**目标项目根目录**的可选项目记忆库，不是本规则集默认已经具备的外部依赖。当前规则只会用到以下文件：
+`documents/` 是位于**目标项目根目录**的可选项目记忆库，不是本规则集默认已经具备的外部依赖。Mini 可按任务选择以下文件：
 
 | 文件 | 职责 | 缺失时的含义 |
 |------|------|--------------|
+| `documents/project-doc.md` | 项目目标、范围、主要功能与成功标准 | 需要时从用户说明、README 和可验证行为重建最小项目目标 |
+| `documents/architecture.md` | 系统边界、模块职责、依赖方向和运行拓扑 | 需要时从代码、配置和部署证据追踪当前结构 |
+| `documents/tech-stack.md` | 当前技术栈、版本来源和工具链约束 | 需要时从声明、锁文件、配置和构建结果识别 |
+| `documents/data-flow.md` | 关键功能的输入、状态、变换、依赖和输出路径 | 需要时沿调用、Schema、消息和测试追踪 |
 | `documents/business-rules.md` | 保存有可定位证据的业务规则 | 当前没有可用的持久化规则记录，不代表业务没有规则 |
 | `documents/decision-log.md` | 保存需长期回查的技术决策及状态 | 当前无法完成历史档案回查，不代表历史上没有决策 |
+| `documents/coding-standards.md` | 保存项目特有且可验证的编码/测试约定 | 需要时以工具配置、CI 和现有代码为准 |
 | `documents/glossary.md` | 保存经验证的术语、代码实体和存储映射 | 仅失去同义词扩展能力，可直接从代码和当前上下文检索 |
 
-读取前必须先检查文件是否存在、是否只是示例/占位、是否适用于当前项目。缺失文档不会自动阻塞任务，也不得被解释成“没有规则”或“没有历史决策”。只有当前任务确实需要持久化记录，且写入位于用户授权的项目范围内时，才按需创建最小文件；否则使用代码、配置、测试、用户说明和当前会话证据继续，并明确历史覆盖范围。完整流程和空模板见 `methods/project-documents.md`。
+读取前必须先检查文件是否存在、是否只是示例/占位、是否适用于当前项目。缺失文档不会自动阻塞任务，也不得被解释成“项目没有目标/架构/规则/决策”。新增功能、制定计划、跨模块修改或恢复上下文时，可用 `methods/project-context.md` 从用户目标、代码、配置、测试和运行结果形成最小任务上下文包；简单任务不要求完整建模。只有内容已验证、具有跨会话复用价值且写入位于用户授权范围时，才按需创建或更新最小文件。完整流程和空模板见 `methods/project-documents.md`。
 
 
 ## 使用方式
