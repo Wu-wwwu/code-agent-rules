@@ -87,6 +87,59 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         self.assertIn("项目证据可以升级风险", policy)
         self.assertIn("不得降低已命中的高风险硬门槛", policy)
 
+    def test_project_context_builds_evidence_based_task_environment(self):
+        policy = read_rule("mini/methods/project-context.md")
+
+        for required_text in (
+            "当前任务所需的环境切片",
+            "不是完整项目模型",
+            "已验证事实及证据",
+            "待验证推断",
+            "未知",
+            "来源冲突",
+            "入口到输出的情景路径",
+            "下一动作及验证",
+        ):
+            self.assertIn(required_text, policy)
+
+    def test_multi_agent_receives_minimal_relevant_context(self):
+        policy = read_rule("mini/methods/multi-agent.md")
+
+        for required_text in (
+            "范围与非目标",
+            "已验证事实及证据位置",
+            "待验证推断",
+            "未知和冲突",
+            "架构、契约、兼容要求",
+            "风险和权限门禁",
+            "共享资源所有者",
+            "合并顺序",
+            "验证命令或验收证据",
+        ):
+            self.assertIn(required_text, policy)
+
+    def test_multi_agent_results_require_review_and_acceptance(self):
+        policy = read_rule("mini/methods/multi-agent.md")
+
+        for required_text in (
+            "accepted",
+            "needs-verification",
+            "needs-rework",
+            "blocked",
+            "只有已验收结果才能并入全局状态",
+            "子任务成功不等于全局完成",
+            "恢复单 Agent 执行",
+        ):
+            self.assertIn(required_text, policy)
+
+    def test_agent_and_routes_expose_context_classification_and_handoff(self):
+        agent = read_rule("mini/agent.md")
+        triggers = read_rule("mini/triggers.md")
+
+        for required_text in ("已验证事实", "待验证推断", "未知与冲突"):
+            self.assertIn(required_text, agent)
+        self.assertIn("需建立或移交任务环境", triggers)
+
 
 if __name__ == "__main__":
     unittest.main()

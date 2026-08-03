@@ -15,6 +15,6 @@
 | 性能、容量、延迟、吞吐或资源消耗用于目标、选型或完成结论 | `methods/performance-evidence.md` |
 | 新增抽象/分层/模式、提取公共代码或结构重构 | `methods/neutral-design.md` |
 | 需从代码/Schema/表识别实体、关系或表示变换 | `methods/data-entity-analysis.md` |
-| 新功能、计划、跨模块、上下文恢复，或实现路径/验证接缝不清 | `methods/project-context.md` |
+| 新功能、计划、跨模块、上下文恢复、需建立或移交任务环境，或实现路径/验证接缝不清 | `methods/project-context.md` |
 
 仅在已加载方法准备实际读写目标项目的 `documents/*.md` 时，再加载 `methods/project-documents.md`。Bug 优先走诊断；只有上下文不足以诊断时才补项目上下文。权限执行风险走破坏性分析；权限目标语义不明时再叠加业务规则。

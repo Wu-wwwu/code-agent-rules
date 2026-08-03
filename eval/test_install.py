@@ -44,8 +44,31 @@ class InstallerTests(unittest.TestCase):
                 path.read_text(encoding="utf-8")
                 for path in (target / "documents").glob("*.md")
             )
-            for edition_path in ("/mini/", "/rules/", "/self/"):
+            for edition_path in ("/mini/", "/lite/", "/rules/", "/self/"):
                 self.assertNotIn(edition_path, installed_text)
+
+    def test_lite_agent_install_uses_absolute_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            entry_file = Path(directory) / "agent" / "RULES.md"
+            self.assertEqual(
+                0,
+                self.run_installer(
+                    "agent", "custom", "--edition", "lite", "--entry-file", str(entry_file)
+                ),
+            )
+            self.assertEqual(
+                f"{(ROOT / 'lite' / 'agent.md').resolve().as_posix()}\n",
+                entry_file.read_text(encoding="utf-8"),
+            )
+
+    def test_lite_project_install(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            self.assertEqual(0, self.run_installer("project", directory, "--edition", "lite"))
+            self.assertTrue((target / "lite" / "agent.md").is_file())
+            self.assertTrue((target / "lite" / "methods" / "templates.md").is_file())
+            self.assertFalse((target / "documents").exists())
+            self.assertEqual("lite/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
 
     def test_rules_project_preserves_existing_documents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -106,6 +129,7 @@ class InstallerTests(unittest.TestCase):
         flag_sets = ((), ("--force",), ("--dry-run",), ("--force", "--dry-run"))
         editions = (
             ("mini", Path("mini/agent.md")),
+            ("lite", Path("lite/agent.md")),
             ("self", Path("self/core.md")),
             ("rules", Path("rules/agent.md")),
         )
@@ -117,6 +141,7 @@ class InstallerTests(unittest.TestCase):
                             isolated_root = Path(directory)
                             sources = {
                                 Path("mini/agent.md"): b"mini source\n",
+                                Path("lite/agent.md"): b"lite source\n",
                                 Path("self/core.md"): b"self source\n",
                                 Path("rules/agent.md"): b"rules source\n",
                             }
