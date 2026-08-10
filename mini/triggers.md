@@ -9,7 +9,7 @@
 | 历史技术决策可能约束当前方案 | `methods/decision-recall.md` |
 | major 升级、弃用到期或上游移除 | `methods/dependency-upgrade.md` |
 | 生成器、构建/格式化/编译工具、CI/CD 或生成物变化 | `methods/toolchain-scope.md` |
-| 独立子任务并行调查或专业复核确有净收益 | `methods/multi-agent.md` |
+| 子任务有独立完成标准且不依赖未产生的前序结果，并适合只读并行、隔离写入或独立专业复核 | `methods/multi-agent.md` |
 | 技术栈不明、新项目选型或技术方向改变系统边界 | `methods/technology-selection.md` |
 | 竞态/时序/非确定性/跨模块 Bug，或无法稳定复现 | `methods/bug-diagnosis.md` |
 | 性能、容量、延迟、吞吐或资源消耗用于目标、选型或完成结论 | `methods/performance-evidence.md` |

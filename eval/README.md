@@ -34,6 +34,8 @@
 | [case-j-user-technology-direction.md](./case-j-user-technology-direction.md) | 综合工程场景 | 用户指定技术、兼容冲突、自主选型边界 | ✅ | ✅ |
 | [case-k-toolchain-scope.md](./case-k-toolchain-scope.md) | 综合工程场景 | 生成工具链、配置作用域、产物验证 | ✅ | ✅ |
 | [case-l-project-context.md](./case-l-project-context.md) | 综合工程场景 | 新增功能形成最小入口到验证路径，局部任务保持轻量 | ⚠️ 通用原则 | ⚠️ 通用原则 |
+| [case-m-code-convergence.md](./case-m-code-convergence.md) | 综合工程场景 | 代码收束、逻辑闭合、兼容并存与停止条件 | ✅ | ✅ |
+| [case-n-operational-criteria.md](./case-n-operational-criteria.md) | 综合工程场景 | 模糊程度词的操作性判定、证据复用、稳定边界、回退与委派条件 | ✅ | ✅ |
 
 ## 维护约定
 

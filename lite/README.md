@@ -8,7 +8,7 @@
 
 | 文件 | 现状 ≈token | 预算上限 | 加载时机 |
 |------|-----------|---------|---------|
-| agent.md | ≈1 400 | 1 500 | 常驻 |
+| agent.md | ≈1 500 | 1 600 | 常驻 |
 | triggers.md | ≈1 000 | 1 100 | 每任务校准 |
 | methods/destructive-analysis.md | 1 534 | 1 600 | T1/T2 命中 |
 | methods/project-context.md | ≈1 600 | 1 750 | T13 命中 |
