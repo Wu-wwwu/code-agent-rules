@@ -28,6 +28,15 @@ class LitePolicyTests(unittest.TestCase):
             self.assertIn(text, agent)
         self.assertIn("需建立/移交任务环境", triggers)
 
+    def test_lite_positioning_uses_self_contained_methods(self) -> None:
+        readme = read_rule("lite/README.md")
+        for text in (
+            "自包含的专项方法",
+            "按需创建项目长期记忆",
+            "检查路由集合、方法文件和跨方法引用",
+        ):
+            self.assertIn(text, readme)
+
 
 if __name__ == "__main__":
     unittest.main()
