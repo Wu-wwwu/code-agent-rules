@@ -143,7 +143,7 @@ self/core.md
 固定路径安装示例（实际路径以安装位置为准）：
 
 ```text
-E:/agent-rules/rules-v3.02-hybrid-kimi/rules/agent.md
+E:/agent-rules/agent.md
 ```
 
 ### 安装辅助
