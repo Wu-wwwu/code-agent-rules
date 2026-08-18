@@ -56,6 +56,19 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         self.assertIn("权限执行风险走破坏性分析", triggers)
         self.assertIn("权限目标语义不明时再叠加业务规则", triggers)
 
+    def test_analysis_views_are_composable_and_do_not_trigger_methods(self):
+        agent = read_rule("mini/agent.md")
+        triggers = read_rule("mini/triggers.md")
+
+        for view in ("全局拓扑", "局部影响", "发散探索", "状态变迁"):
+            self.assertIn(view, agent)
+            self.assertIn(view, triggers)
+        self.assertIn("多个视角同时命中时取必要方法的并集", agent)
+        self.assertIn("门禁优先", agent)
+        self.assertIn("不单独触发方法加载", triggers)
+        self.assertIn("未命中上表信号时仍直接执行", triggers)
+        self.assertIn("输出前缀不是默认要求", triggers)
+
     def test_dependency_confirmation_uses_shared_state_transitions(self):
         policy = read_rule("mini/methods/dependency-upgrade.md")
 
@@ -106,6 +119,8 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         policy = read_rule("mini/methods/multi-agent.md")
 
         for required_text in (
+            "`Intent`",
+            "`Constraint`",
             "范围与非目标",
             "已验证事实及证据位置",
             "待验证推断",
@@ -122,6 +137,14 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         policy = read_rule("mini/methods/multi-agent.md")
 
         for required_text in (
+            "`Status`",
+            "`Delta`",
+            "`Validation`",
+            "`Side_Effect`",
+            "`completed`",
+            "可观察完成标准和必需验证均已满足",
+            "缺少前置条件或关键证据而无法安全继续",
+            "执行路径未满足完成标准",
             "accepted",
             "needs-verification",
             "needs-rework",
@@ -131,6 +154,7 @@ class MiniSafetyPolicyTests(unittest.TestCase):
             "恢复单 Agent 执行",
         ):
             self.assertIn(required_text, policy)
+        self.assertIn("验收状态由主 Agent 另行标记", policy)
 
     def test_agent_and_routes_expose_context_classification_and_handoff(self):
         agent = read_rule("mini/agent.md")

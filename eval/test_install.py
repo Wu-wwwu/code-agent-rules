@@ -125,6 +125,17 @@ class InstallerTests(unittest.TestCase):
                 entry_file.read_text(encoding="utf-8"),
             )
 
+    def test_cline_preset_uses_clinerules_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            expected_entry = home / ".clinerules" / "agent.md"
+            with mock.patch.dict(INSTALLER.AGENT_PRESETS, {"cline": expected_entry}):
+                self.assertEqual(0, self.run_installer("agent", "cline", "--edition", "self"))
+            self.assertEqual(
+                f"{(ROOT / 'self' / 'core.md').resolve().as_posix()}\n",
+                expected_entry.read_text(encoding="utf-8"),
+            )
+
     def test_agent_entry_cannot_overwrite_edition_source(self) -> None:
         flag_sets = ((), ("--force",), ("--dry-run",), ("--force", "--dry-run"))
         editions = (

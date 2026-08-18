@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import json
 import shutil
 import sys
 from dataclasses import dataclass
@@ -13,14 +14,19 @@ from typing import Iterable
 
 
 ROOT = Path(__file__).resolve().parent
-EDITIONS = {
-    "mini": ("mini/agent.md", ("mini", "documents")),
-    "lite": ("lite/agent.md", ("lite",)),
-    "rules": ("rules/agent.md", ("rules", "documents")),
-    "self": ("self/core.md", ("self",)),
-}
+
+
+def load_editions() -> dict[str, tuple[str, tuple[str, ...]]]:
+    manifest = json.loads((ROOT / "source" / "editions.json").read_text(encoding="utf-8"))
+    return {
+        name: (config["entry"], tuple(config["runtime"]))
+        for name, config in manifest.items()
+    }
+
+
+EDITIONS = load_editions()
 AGENT_PRESETS = {
-    "cline": Path.home() / "Documents" / "Cline" / "Rules" / "AGENTS.md",
+    "cline": Path.home() / ".clinerules" / "agent.md",
     "claude": Path.home() / ".claude" / "CLAUDE.md",
     "codex": Path.home() / ".codex" / "AGENTS.md",
 }

@@ -1,0 +1,22 @@
+{
+  "mini": {
+    "entry": "mini/agent.md",
+    "positioning": "压缩核心、短触发表和按需专项方法",
+    "runtime": ["mini", "documents"]
+  },
+  "lite": {
+    "entry": "lite/agent.md",
+    "positioning": "压缩核心、自包含专项方法和按需项目记忆",
+    "runtime": ["lite"]
+  },
+  "rules": {
+    "entry": "rules/agent.md",
+    "positioning": "完整操作定义、强制门禁和固定项目文档体系",
+    "runtime": ["rules", "documents"]
+  },
+  "self": {
+    "entry": "self/core.md",
+    "positioning": "压缩核心和从项目证据动态形成认知的能力模块",
+    "runtime": ["self"]
+  }
+}
