@@ -165,6 +165,7 @@ py install.py project D:/work/my-project --edition rules
 - Self 版复制 `self/` 并写入 `AGENTS.md -> self/core.md`；使用 `--edition self` 显式选择。
 - 强约束版复制 `rules/`，补充项目中尚不存在的 `documents/` 模板，并写入 `AGENTS.md -> rules/agent.md`；已有项目文档始终保留，不会被模板覆盖。
 - 目标工具使用其他项目入口文件时，可通过 `--entry-file CLAUDE.md` 或相应相对路径指定。
+- 目录复制自动排除 `__pycache__`、`.pytest_cache`、`.git` 和 `*.pyc` 等生成缓存；写入中途失败时恢复本轮已覆盖的原文件并清理本轮新建文件。
 
 安装到 Code Agent 用户级入口（写入指向本仓库规则入口的绝对路径）：
 

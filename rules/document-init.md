@@ -11,8 +11,8 @@ description: 项目文档体系的创建与内容基准。首次需要创建、�
 
 | 文档 | 创建时机 | 最少应包含 | 数据来源 |
 |------|----------|-----------|----------|
-| `project-doc.md` | 首次进入项目 | 项目名称和定位、目录结构概览 | 目录名、构建/工程文件名、README 首段 |
-| `architecture.md` | 首次进入项目 | 分层结构、模块边界、技术栈、实体→表名映射 | 依赖声明与引用（如 csproj、package.json、go.mod、pom.xml）、命名空间/包结构、API 路径 |
+| `project-doc.md` | 首次出现当前任务需要且尚无可靠记录的项目定位事实 | 项目名称和定位、目录结构概览 | 目录名、构建/工程文件名、README 首段 |
+| `architecture.md` | 首次出现当前任务需要且尚无可靠记录的边界事实 | 分层结构、模块边界、技术栈、实体→表名映射 | 依赖声明与引用（如 csproj、package.json、go.mod、pom.xml）、命名空间/包结构、API 路径 |
 | `tech-stack.md` | 识别现有技术栈或为新项目完成选型后 | 语言/框架/数据库版本、核心依赖、证据或选择依据 | 构建与依赖清单（如 csproj、packages.config、package.json、pom.xml、go.mod、requirements.txt）、锁文件、Dockerfile、运行结果 |
 | `data-flow.md` | 首次涉及数据处理 | 至少 1 条数据构件创建与变换链路（来源/创建→处理→输出） | 类型、Schema、字段映射及入口→处理→存储的调用链 |
 | `decision-log.md` | 首次做出同时满足 `business-analysis.md`「新建决策条件」的真实决策 | 决策索引与完整决策记录 | 决策框架所需的已验证证据、用户确认和影响结果 |

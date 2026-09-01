@@ -24,6 +24,7 @@ AGENT_PRESETS = {
     "claude": Path.home() / ".claude" / "CLAUDE.md",
     "codex": Path.home() / ".codex" / "AGENTS.md",
 }
+IGNORED_TREE_PARTS = {".git", ".pytest_cache", "__pycache__"}
 
 
 class InstallError(RuntimeError):
@@ -61,6 +62,8 @@ def tree_operations(source_dir: Path, destination_dir: Path, *, preserve_existin
         )
         for source in source_dir.rglob("*")
         if source.is_file()
+        and not (IGNORED_TREE_PARTS & set(source.relative_to(source_dir).parts))
+        and source.suffix.lower() != ".pyc"
     ]
 
 
@@ -107,33 +110,76 @@ def preflight(operations: Iterable[WriteOperation], *, force: bool) -> None:
 
 
 def apply_operations(operations: Iterable[WriteOperation], *, force: bool, dry_run: bool) -> tuple[int, int, int]:
+    operations = list(operations)
     written = skipped = backed_up = 0
-    for operation in operations:
-        destination = operation.destination
-        if operation_is_current(operation):
-            skipped += 1
-            continue
-        if destination.exists() and operation.preserve_existing:
-            skipped += 1
-            print(f"保留现有项目文档: {destination}")
-            continue
+    changed: list[tuple[Path, Path | None, bool]] = []
+    backups: list[Path] = []
+    created_directories: set[Path] = set()
+    try:
+        for operation in operations:
+            destination = operation.destination
+            if operation_is_current(operation):
+                skipped += 1
+                continue
+            if destination.exists() and operation.preserve_existing:
+                skipped += 1
+                print(f"保留现有项目文档: {destination}")
+                continue
 
-        if destination.exists() and force:
-            backup = backup_path(destination)
-            print(f"备份: {destination} -> {backup}")
+            backup: Path | None = None
+            existed_before = destination.exists()
+            if existed_before and not force:
+                raise InstallError(f"写入前目标出现不同内容，安装已停止: {destination}")
+            if existed_before and force:
+                backup = backup_path(destination)
+                backups.append(backup)
+                print(f"备份: {destination} -> {backup}")
+                if not dry_run:
+                    backup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(destination, backup)
+                backed_up += 1
+
+            print(f"{'计划写入' if dry_run else '写入'}: {destination}")
             if not dry_run:
-                backup.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(destination, backup)
-            backed_up += 1
-
-        print(f"{'计划写入' if dry_run else '写入'}: {destination}")
-        if not dry_run:
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            if operation.source is not None:
-                shutil.copy2(operation.source, destination)
-            else:
-                destination.write_text(operation.content or "", encoding="utf-8")
-        written += 1
+                parent = destination.parent
+                while not parent.exists():
+                    created_directories.add(parent)
+                    parent = parent.parent
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                changed.append((destination, backup, existed_before))
+                if operation.source is not None:
+                    shutil.copy2(operation.source, destination)
+                else:
+                    destination.write_text(operation.content or "", encoding="utf-8")
+            written += 1
+    except (OSError, InstallError) as error:
+        rollback_errors: list[str] = []
+        for destination, backup, existed_before in reversed(changed):
+            try:
+                if destination.exists():
+                    if destination.is_dir():
+                        shutil.rmtree(destination)
+                    else:
+                        destination.unlink()
+                if backup is not None and backup.exists():
+                    shutil.move(backup, destination)
+                elif existed_before:
+                    rollback_errors.append(f"无法恢复 {destination}")
+            except OSError as rollback_error:
+                rollback_errors.append(f"恢复 {destination} 失败: {rollback_error}")
+        for backup in backups:
+            if backup.exists():
+                try:
+                    backup.unlink()
+                except OSError as cleanup_error:
+                    rollback_errors.append(f"清理备份 {backup} 失败: {cleanup_error}")
+        for directory in sorted(created_directories, key=lambda path: len(path.parts), reverse=True):
+            try:
+                directory.rmdir()
+            except OSError:
+                pass
+        detail = f"；回滚失败: {'；'.join(rollback_errors)}" if rollback_errors else "；已回滚已写入的文件"
+        raise InstallError(f"写入过程中失败: {error}{detail}") from error
     return written, skipped, backed_up
 
 

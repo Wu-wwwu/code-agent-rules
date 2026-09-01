@@ -70,6 +70,65 @@ class InstallerTests(unittest.TestCase):
             self.assertFalse((target / "documents").exists())
             self.assertEqual("lite/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
 
+    def test_project_install_excludes_generated_cache_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            generated = ROOT / "mini" / "__pycache__" / "generated-test.pyc"
+            generated.parent.mkdir(exist_ok=True)
+            generated.write_bytes(b"cache")
+            try:
+                self.assertEqual(0, self.run_installer("project", directory))
+                self.assertFalse((target / "mini" / "__pycache__").exists())
+                self.assertEqual([], list(target.rglob("*.pyc")))
+            finally:
+                generated.unlink(missing_ok=True)
+
+    def test_project_install_rolls_back_when_a_copy_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            original_copy2 = INSTALLER.shutil.copy2
+            calls = 0
+
+            def fail_on_second_copy(source, destination, *args, **kwargs):
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise OSError("injected copy failure")
+                return original_copy2(source, destination, *args, **kwargs)
+
+            with mock.patch.object(INSTALLER.shutil, "copy2", side_effect=fail_on_second_copy):
+                self.assertEqual(1, self.run_installer("project", directory))
+            self.assertEqual([], list(target.iterdir()))
+            self.assertEqual([], list(target.rglob("*.bak.*")))
+
+    def test_project_install_restores_overwritten_file_when_later_copy_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            entry = target / "AGENTS.md"
+            entry.write_text("old pointer\n", encoding="utf-8")
+            operations = [
+                INSTALLER.pointer_operation(entry, "mini/agent.md"),
+                INSTALLER.WriteOperation(
+                    source=ROOT / "mini" / "agent.md",
+                    destination=target / "mini" / "agent.md",
+                ),
+            ]
+            original_copy2 = INSTALLER.shutil.copy2
+            calls = 0
+
+            def fail_on_second_copy(source, destination, *args, **kwargs):
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise OSError("injected copy failure")
+                return original_copy2(source, destination, *args, **kwargs)
+
+            with mock.patch.object(INSTALLER.shutil, "copy2", side_effect=fail_on_second_copy):
+                with self.assertRaises(INSTALLER.InstallError):
+                    INSTALLER.apply_operations(operations, force=True, dry_run=False)
+            self.assertEqual("old pointer\n", entry.read_text(encoding="utf-8"))
+            self.assertEqual([], list(target.rglob("*.bak.*")))
+
     def test_rules_project_preserves_existing_documents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory)

@@ -4,7 +4,7 @@
 
 ## 怎么用
 
-1. 运行 `py eval/check_rule_references.py`（也可用环境中的 `python`），检查跨文件规则引用的目标文件和章节标题仍然存在、未重新引入数字章节号引用，并确认根目录 `AGENTS.md` 仍是只包含一个有效规则路径的纯指针文件。
+1. 运行 `py eval/check_rule_references.py`（也可用环境中的 `python`），检查跨文件规则引用的目标文件和章节标题仍然存在、未重新引入数字章节号引用，并确认根目录 `AGENTS.md` 与 `CLAUDE.md` 都是只包含一个有效规则路径的纯指针文件。
 2. 修改 `install.py` 或安装说明后运行 `py -m unittest -v eval.test_install`，验证项目安装、Agent 安装、冲突保护、备份、dry-run 和路径边界。
 3. 将每个案例文件中的**模拟任务**交给加载了被测规则版本的 Agent（新开会话，不给额外提示）。
 4. 对照案例的**期望行为检查点**逐项核对 Agent 的实际行为。标 ★ 的为关键检查点。
