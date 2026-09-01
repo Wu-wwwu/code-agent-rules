@@ -27,4 +27,5 @@
 | 局部影响 | 局部修改、接口调用、具体文案、工具操作 | 无默认方法；仅按上表实际信号加载 |
 | 发散探索 | 根因未知、需求模糊、技术方向未定 | `methods/bug-diagnosis.md`、`methods/technology-selection.md` |
 | 状态变迁 | 状态、数据、并发、事务、生命周期、回滚 | `methods/bug-diagnosis.md`、`methods/data-entity-analysis.md`、`methods/destructive-analysis.md` |
+| 职责与表示 | 需在数据访问、业务模型、算法结构或边界契约之间选择贴合代码职责的分析方式 | 无默认方法；按代码实际职责选择证据、表示和验证接缝 |
 仅在已加载方法准备实际读写目标项目的 `documents/*.md` 时，再加载 `methods/project-documents.md`。Bug 优先走诊断；只有上下文不足以诊断时才补项目上下文。权限执行风险走破坏性分析；权限目标语义不明时再叠加业务规则。
