@@ -6,8 +6,9 @@
 
 1. 先确认目标项目根目录；不得把规则仓库示例、文件系统根目录或其他项目文档当作当前事实。
 2. 只读当前动作需要的单个文件，不扫描整个目录。
-3. 判断内容是有效、缺失、示例/占位还是过期/冲突；只有有来源且适用的内容可作事实。
+3. 判断内容是有效、缺失、示例/占位还是过期/冲突；front matter 含 `document_status: template` 或 `project_facts: none` 时只能作模板，不得作项目事实；只有有来源且适用的内容可作事实。
 4. 文档与代码、配置、Schema、测试、运行结果或用户说明冲突时标记冲突，不静默选边。
+模板只有在内容被代码、配置、测试或运行结果核验后，才可把 front matter 更新为 `document_status: active`、`project_facts: verified`；未核验时不要删除模板标记。
 
 常用职责：`project-doc.md` 记录目标与范围，`architecture.md` 记录边界与职责，`tech-stack.md` 记录实际技术及版本来源，`data-flow.md` 记录输入到输出路径，`business-rules.md` 记录有证据的规则，`decision-log.md` 记录需回查的决策，`coding-standards.md` 记录项目特有约定，`glossary.md` 记录已验证术语映射。
 

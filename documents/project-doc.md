@@ -1,3 +1,7 @@
+---
+document_status: template
+project_facts: none
+---
 # 项目总览（示例）
 
 > 示例内容，实际使用时请依据仓库事实替换。

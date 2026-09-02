@@ -8,7 +8,30 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MARKDOWN_FILES = tuple(ROOT.rglob("*.md"))
+MARKDOWN_SOURCES = (
+    ROOT / "README.md",
+    ROOT / "mini",
+    ROOT / "lite",
+    ROOT / "rules",
+    ROOT / "self",
+    ROOT / "documents",
+    ROOT / "eval",
+)
+IGNORED_PARTS = {".git", ".kilo", ".pytest_cache", "__pycache__", "node_modules", "worktrees"}
+
+
+def iter_markdown_files() -> tuple[Path, ...]:
+    """Return only maintained rule, document, and evaluation Markdown files."""
+    files: list[Path] = []
+    for source in MARKDOWN_SOURCES:
+        candidates = (source,) if source.is_file() else source.rglob("*.md")
+        for path in candidates:
+            if path.is_file() and not (IGNORED_PARTS & set(path.relative_to(ROOT).parts)):
+                files.append(path)
+    return tuple(sorted(set(files)))
+
+
+MARKDOWN_FILES = iter_markdown_files()
 POINTER_FILES = (ROOT / "AGENTS.md", ROOT / "CLAUDE.md")
 LOCAL_AGENT_POINTERS = {"mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"}
 AGENT_ENTRY_SUFFIXES = tuple(f"/{path}" for path in LOCAL_AGENT_POINTERS)
@@ -79,6 +102,27 @@ def check_pointer_file(pointer_file: Path, errors: list[str]) -> None:
         errors.append(f"{label}: 固定路径不可访问或目标不存在: {pointer}")
 
 
+
+def check_pointer_consistency(errors: list[str]) -> None:
+    """Ensure two supported root entry files select one controller edition."""
+    values: dict[Path, str] = {}
+    for pointer_file in POINTER_FILES:
+        if not pointer_file.is_file():
+            continue
+        try:
+            lines = pointer_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeError):
+            continue
+        if len(lines) == 1 and lines[0].strip() == lines[0] and lines[0]:
+            values[pointer_file] = lines[0].replace("\\", "/")
+    if len(values) == len(POINTER_FILES) and len(set(values.values())) != 1:
+        rendered = ", ".join(
+            f"{path.relative_to(ROOT).as_posix()}={value}"
+            for path, value in values.items()
+        )
+        errors.append(f"根目录入口必须选择同一个总控版本: {rendered}")
+
+
 def resolve_reference(source: Path, reference: str) -> Path:
     """Resolve project-root or rule-file-relative Markdown references."""
     if reference.startswith("/"):
@@ -96,6 +140,7 @@ def main() -> int:
 
     for pointer_file in POINTER_FILES:
         check_pointer_file(pointer_file, errors)
+    check_pointer_consistency(errors)
 
     for source in MARKDOWN_FILES:
         content = source.read_text(encoding="utf-8")

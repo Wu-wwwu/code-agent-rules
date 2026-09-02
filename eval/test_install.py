@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import importlib.util
 import io
+import os
 import sys
 import tempfile
 import unittest
@@ -38,14 +39,18 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(0, self.run_installer("project", directory))
             self.assertTrue((target / "mini" / "agent.md").is_file())
             self.assertTrue((target / "mini" / "triggers.md").is_file())
+            self.assertFalse((target / "documents").exists())
+            self.assertEqual("mini/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
+
+    def test_project_install_includes_documents_only_when_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            self.assertEqual(
+                0,
+                self.run_installer("project", directory, "--include-documents"),
+            )
             self.assertTrue((target / "documents" / "business-rules.md").is_file())
             self.assertEqual("mini/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
-            installed_text = "\n".join(
-                path.read_text(encoding="utf-8")
-                for path in (target / "documents").glob("*.md")
-            )
-            for edition_path in ("/mini/", "/lite/", "/rules/", "/self/"):
-                self.assertNotIn(edition_path, installed_text)
 
     def test_lite_agent_install_uses_absolute_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -129,13 +134,40 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual("old pointer\n", entry.read_text(encoding="utf-8"))
             self.assertEqual([], list(target.rglob("*.bak.*")))
 
+    def test_pointer_verification_failure_rolls_back_all_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            entry = target / "AGENTS.md"
+            entry.write_text("old pointer\n", encoding="utf-8")
+            operations = [
+                INSTALLER.WriteOperation(
+                    source=ROOT / "mini" / "agent.md",
+                    destination=target / "mini" / "agent.md",
+                ),
+                INSTALLER.pointer_operation(entry, "mini/agent.md"),
+            ]
+
+            def fail_verification() -> None:
+                raise INSTALLER.InstallError("injected verification failure")
+
+            with self.assertRaisesRegex(INSTALLER.InstallError, "injected verification failure"):
+                INSTALLER.apply_operations(
+                    operations,
+                    force=True,
+                    dry_run=False,
+                    verify=fail_verification,
+                )
+            self.assertEqual("old pointer\n", entry.read_text(encoding="utf-8"))
+            self.assertFalse((target / "mini").exists())
+            self.assertEqual([], list(target.rglob("*.bak.*")))
+
     def test_rules_project_preserves_existing_documents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory)
             document = target / "documents" / "architecture.md"
             document.parent.mkdir(parents=True)
             document.write_text("project fact\n", encoding="utf-8")
-            self.assertEqual(0, self.run_installer("project", directory, "--edition", "rules"))
+            self.assertEqual(0, self.run_installer("project", directory, "--edition", "rules", "--include-documents"))
             self.assertTrue((target / "rules" / "agent.md").is_file())
             self.assertEqual("project fact\n", document.read_text(encoding="utf-8"))
             self.assertEqual("rules/agent.md\n", (target / "AGENTS.md").read_text(encoding="utf-8"))
@@ -230,6 +262,99 @@ class InstallerTests(unittest.TestCase):
                                 self.assertEqual(content, (isolated_root / relative_path).read_bytes())
                             self.assertEqual([], list(isolated_root.rglob("*.bak.*")))
 
+    def test_agent_entry_hardlink_cannot_overwrite_source(self) -> None:
+        for edition, relative_source in (("self", Path("self/core.md")), ("rules", Path("rules/agent.md"))):
+            with self.subTest(edition=edition):
+                with tempfile.TemporaryDirectory() as directory:
+                    isolated_root = Path(directory)
+                    source = isolated_root / relative_source
+                    source.parent.mkdir(parents=True)
+                    source.write_bytes(b"source must remain unchanged\n")
+                    entry_file = isolated_root / "alias.md"
+                    entry_file.hardlink_to(source)
+                    with mock.patch.object(INSTALLER, "ROOT", isolated_root):
+                        result = self.run_installer(
+                            "agent",
+                            "custom",
+                            "--edition",
+                            edition,
+                            "--entry-file",
+                            str(entry_file),
+                            "--force",
+                        )
+                    self.assertEqual(1, result)
+                    self.assertEqual(b"source must remain unchanged\n", source.read_bytes())
+                    self.assertEqual(b"source must remain unchanged\n", entry_file.read_bytes())
+
+    def test_agent_entry_symlink_cannot_overwrite_external_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            external = root / "external.md"
+            external.write_text("external content\n", encoding="utf-8")
+            entry_file = root / "RULES.md"
+            try:
+                os.symlink(external, entry_file)
+            except OSError as error:
+                self.skipTest(f"symbolic links unavailable: {error}")
+
+            self.assertEqual(
+                1,
+                self.run_installer(
+                    "agent",
+                    "custom",
+                    "--entry-file",
+                    str(entry_file),
+                    "--force",
+                ),
+            )
+            self.assertTrue(entry_file.is_symlink())
+            self.assertEqual("external content\n", external.read_text(encoding="utf-8"))
+            self.assertEqual([], list(root.rglob("*.bak.*")))
+
+    def test_agent_entry_junction_cannot_overwrite_external_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external_directory:
+            root = Path(directory)
+            external = Path(external_directory)
+            entry_file = root / "RULES.md"
+            try:
+                os.symlink(external, entry_file, target_is_directory=True)
+            except OSError as error:
+                self.skipTest(f"junction creation unavailable: {error}")
+
+            self.assertEqual(
+                1,
+                self.run_installer(
+                    "agent",
+                    "custom",
+                    "--entry-file",
+                    str(entry_file),
+                    "--force",
+                ),
+            )
+            self.assertTrue(entry_file.is_symlink())
+            self.assertFalse((external / "RULES.md").exists())
+
+    def test_project_entry_under_symlink_directory_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
+            target = Path(directory)
+            linked_directory = target / "linked"
+            try:
+                os.symlink(outside, linked_directory, target_is_directory=True)
+            except OSError as error:
+                self.skipTest(f"symbolic links unavailable: {error}")
+
+            self.assertEqual(
+                1,
+                self.run_installer(
+                    "project",
+                    directory,
+                    "--entry-file",
+                    "linked/AGENTS.md",
+                ),
+            )
+            self.assertFalse((Path(outside) / "AGENTS.md").exists())
+            self.assertFalse((target / "mini").exists())
+
     def test_dry_run_does_not_write(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(0, self.run_installer("project", directory, "--dry-run"))
@@ -269,9 +394,23 @@ class InstallerTests(unittest.TestCase):
             target = Path(directory)
             documents = target / "documents"
             documents.write_text("not a directory\n", encoding="utf-8")
-            self.assertEqual(1, self.run_installer("project", directory, "--edition", "rules"))
+            self.assertEqual(1, self.run_installer("project", directory, "--edition", "rules", "--include-documents"))
             self.assertFalse((target / "rules").exists())
             self.assertEqual("not a directory\n", documents.read_text(encoding="utf-8"))
+
+    def test_lite_rejects_root_document_templates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(
+                1,
+                self.run_installer(
+                    "project",
+                    directory,
+                    "--edition",
+                    "lite",
+                    "--include-documents",
+                ),
+            )
+            self.assertEqual([], list(Path(directory).iterdir()))
 
 
 if __name__ == "__main__":

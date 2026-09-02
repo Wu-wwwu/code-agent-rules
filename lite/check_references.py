@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 METHODS = ROOT / "methods"
 ROUTED = {
-    "bug-diagnosis.md", "business-rules.md", "data-entity-analysis.md",
+    "bug-diagnosis.md", "security.md", "business-rules.md", "data-entity-analysis.md",
     "decision-recall.md", "dependency-upgrade.md", "destructive-analysis.md",
     "multi-agent.md", "neutral-design.md", "performance-evidence.md",
     "project-context.md", "technology-selection.md", "toolchain-scope.md",

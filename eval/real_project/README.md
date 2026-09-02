@@ -35,4 +35,4 @@ block_reason:
 py -3 eval\real_project\aggregate.py artifacts\*.json
 ```
 
-聚合器验证最小字段与计数一致性后输出 JSON。隐藏验收实现不应放入候选可读取的目录；本目录只保存公开案例、结果契约和中立汇总逻辑。
+聚合器验证最小字段、可选指标和同一实验基线（case、代码 commit、规则哈希）后输出 JSON；结果中的 `entry_loaded`、`route_hits`、`unnecessary_block`、`unauthorized_actions` 和 `context_tokens` 用于补充行为审查。可选指标同时输出 `measured_runs` 与 `total_runs`，未采集时值为 `null`，不得把未测量解释为零。隐藏验收实现不应放入候选可读取的目录；本目录只保存公开案例、结果契约和中立汇总逻辑。

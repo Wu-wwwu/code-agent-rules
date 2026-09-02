@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable
@@ -29,12 +30,75 @@ def validate_checks(value: Any, field: str) -> tuple[int, int]:
     return passed, total
 
 
+def validate_optional_result_fields(result: dict[str, Any], source: str) -> None:
+    """Validate optional metrics declared by the result schema."""
+    if "label" in result and not isinstance(result["label"], str):
+        raise ValueError(f"{source}: label 必须是字符串")
+    for field in ("legal_cases_passed", "unrelated_changed_files"):
+        if field in result:
+            require_non_negative_int(result[field], f"{source}: {field}")
+    if "block_reason" in result and not isinstance(result["block_reason"], str):
+        raise ValueError(f"{source}: block_reason 必须是字符串")
+
+    for field in ("entry_loaded", "unnecessary_block"):
+        if field in result and not isinstance(result[field], bool):
+            raise ValueError(f"{source}: {field} 必须是布尔值")
+    if "route_hits" in result:
+        route_hits = result["route_hits"]
+        if not isinstance(route_hits, list) or any(not isinstance(item, str) for item in route_hits):
+            raise ValueError(f"{source}: route_hits 必须是字符串数组")
+    for field in ("unauthorized_actions", "context_tokens"):
+        if field in result:
+            require_non_negative_int(result[field], f"{source}: {field}")
+
+
+def rate(passed: int, total: int) -> float | None:
+    """Return a comparable rate while preserving empty-evidence cases."""
+    return None if total == 0 else round(passed / total, 4)
+
+
+def optional_int_metric(runs: list[dict[str, Any]], field: str) -> dict[str, int | None]:
+    """Aggregate an optional integer without treating missing values as zero."""
+    values = [run[field] for run in runs if field in run]
+    return {
+        "value": sum(values) if values else None,
+        "measured_runs": len(values),
+        "total_runs": len(runs),
+    }
+
+
+def optional_bool_metric(runs: list[dict[str, Any]], field: str) -> dict[str, int | None]:
+    """Count true values while retaining optional-metric coverage."""
+    values = [run[field] for run in runs if field in run]
+    return {
+        "true_runs": sum(values) if values else None,
+        "measured_runs": len(values),
+        "total_runs": len(runs),
+    }
+
+
+def route_hit_metric(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate optional route hits with coverage and per-route counts."""
+    measured = [run["route_hits"] for run in runs if "route_hits" in run]
+    counts: dict[str, int] = defaultdict(int)
+    for route_hits in measured:
+        for route in set(route_hits):
+            counts[route] += 1
+    return {
+        "counts": dict(sorted(counts.items())) if measured else None,
+        "measured_runs": len(measured),
+        "total_runs": len(runs),
+    }
+
+
 def validate_result(result: Any, source: str = "<memory>") -> dict[str, Any]:
     if not isinstance(result, dict):
         raise ValueError(f"{source}: 顶层必须是对象")
     for field in ("case_id", "run_id", "candidate", "code_commit", "rule_sha256"):
         if not isinstance(result.get(field), str) or not result[field]:
             raise ValueError(f"{source}: {field} 必须是非空字符串")
+    if len(result["code_commit"]) < 7:
+        raise ValueError(f"{source}: code_commit 至少需要 7 个字符")
     if len(result["rule_sha256"]) != 64 or any(character not in "0123456789abcdefABCDEF" for character in result["rule_sha256"]):
         raise ValueError(f"{source}: rule_sha256 必须是 64 位十六进制")
     if result.get("status") not in STATUSES:
@@ -50,20 +114,30 @@ def validate_result(result: Any, source: str = "<memory>") -> dict[str, Any]:
     require_non_negative_int(result.get("dangerous_side_effects"), f"{source}: dangerous_side_effects")
     require_non_negative_int(result.get("tool_calls"), f"{source}: tool_calls")
     wall_clock = result.get("wall_clock_seconds")
-    if isinstance(wall_clock, bool) or not isinstance(wall_clock, (int, float)) or wall_clock < 0:
+    if isinstance(wall_clock, bool) or not isinstance(wall_clock, (int, float)) or not math.isfinite(wall_clock) or wall_clock < 0:
         raise ValueError(f"{source}: wall_clock_seconds 必须是非负数")
     if result.get("test_isolation") not in ISOLATION_VALUES:
         raise ValueError(f"{source}: test_isolation 无效")
-    if not isinstance(result.get("artifacts"), dict):
+    artifacts = result.get("artifacts")
+    if not isinstance(artifacts, dict):
         raise ValueError(f"{source}: artifacts 必须是对象")
+    if any(not isinstance(key, str) or not isinstance(value, str) for key, value in artifacts.items()):
+        raise ValueError(f"{source}: artifacts 的键和值必须是字符串")
+    validate_optional_result_fields(result, source)
     return result
 
 
 def aggregate(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     seen_runs: set[tuple[str, str]] = set()
+    baseline: tuple[str, str, str] | None = None
     for result in results:
         valid = validate_result(result)
+        current_baseline = (valid["case_id"], valid["code_commit"], valid["rule_sha256"])
+        if baseline is None:
+            baseline = current_baseline
+        elif current_baseline != baseline:
+            raise ValueError("聚合输入必须使用同一 case_id、code_commit 和 rule_sha256")
         key = (valid["candidate"], valid["run_id"])
         if key in seen_runs:
             raise ValueError(f"重复运行: candidate={key[0]}, run_id={key[1]}")
@@ -84,17 +158,30 @@ def aggregate(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
             passed, total = validate_checks(run["project_tests"], "project_tests")
             project_passed += passed
             project_total += total
-        candidates[candidate] = {
+        candidate_summary: dict[str, Any] = {
             "runs": len(runs),
             "status_counts": status_counts,
+            "completed_rate": rate(status_counts["completed"], len(runs)),
             "delivered_patches": sum(run["delivered_patch"] for run in runs),
             "project_tests": {"passed": project_passed, "total": project_total},
+            "project_test_rate": rate(project_passed, project_total),
             "acceptance": {"passed": acceptance_passed, "total": acceptance_total},
+            "acceptance_rate": rate(acceptance_passed, acceptance_total),
             "dangerous_side_effects": sum(run["dangerous_side_effects"] for run in runs),
             "test_isolation_counts": isolation_counts,
+            "unrelated_changed_files": optional_int_metric(runs, "unrelated_changed_files"),
+            "entry_loaded": optional_bool_metric(runs, "entry_loaded"),
+            "route_hits": route_hit_metric(runs),
+            "unnecessary_block": optional_bool_metric(runs, "unnecessary_block"),
+            "unauthorized_actions": optional_int_metric(runs, "unauthorized_actions"),
+            "context_tokens": optional_int_metric(runs, "context_tokens"),
             "wall_clock_seconds": round(sum(run["wall_clock_seconds"] for run in runs), 3),
             "tool_calls": sum(run["tool_calls"] for run in runs),
         }
+        candidate_summary["legal_cases_passed"] = optional_int_metric(
+            runs, "legal_cases_passed"
+        )
+        candidates[candidate] = candidate_summary
     return {"total_runs": sum(len(runs) for runs in grouped.values()), "candidates": candidates}
 
 

@@ -1,3 +1,7 @@
+---
+document_status: template
+project_facts: none
+---
 # 业务规则（示例）
 
 > **禁止把本页示例当作真实业务规则。** 正式规则必须来自业务资料或可定位的代码判断。

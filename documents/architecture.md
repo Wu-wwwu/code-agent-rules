@@ -1,3 +1,7 @@
+---
+document_status: template
+project_facts: none
+---
 # 架构设计（示例）
 
 > 示例内容，实际使用时请从目录、项目引用和调用链验证。

@@ -13,6 +13,7 @@ MINI_ROOT = Path(__file__).resolve().parent
 METHODS_DIR = MINI_ROOT / "methods"
 ROUTED_METHODS = {
     "bug-diagnosis.md",
+    "security.md",
     "business-rules.md",
     "data-entity-analysis.md",
     "decision-recall.md",

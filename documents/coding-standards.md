@@ -1,3 +1,7 @@
+---
+document_status: template
+project_facts: none
+---
 # 项目编码规范（示例）
 
 > 正式内容必须从实际代码观察得出。以下仅演示记录结构。

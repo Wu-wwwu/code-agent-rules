@@ -4,21 +4,23 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import os
 import shutil
 import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 
 ROOT = Path(__file__).resolve().parent
 EDITIONS = {
-    "mini": ("mini/agent.md", ("mini", "documents")),
+    "mini": ("mini/agent.md", ("mini",)),
     "lite": ("lite/agent.md", ("lite",)),
-    "rules": ("rules/agent.md", ("rules", "documents")),
+    "rules": ("rules/agent.md", ("rules",)),
     "self": ("self/core.md", ("self",)),
 }
+DOCUMENT_EDITIONS = {"mini", "rules"}
 AGENT_PRESETS = {
     "cline": Path.home() / "Documents" / "Cline" / "Rules" / "AGENTS.md",
     "claude": Path.home() / ".claude" / "CLAUDE.md",
@@ -43,6 +45,31 @@ def same_file_content(source: Path, destination: Path) -> bool:
     return destination.is_file() and filecmp.cmp(source, destination, shallow=False)
 
 
+def same_file_identity(source: Path, destination: Path) -> bool:
+    """Detect hard links and other aliases before writing a pointer."""
+    if not source.exists() or not destination.exists():
+        return False
+    try:
+        return source.samefile(destination)
+    except FileNotFoundError:
+        return False
+    except OSError as error:
+        raise InstallError(f"无法确认安装目标是否与规范源相同: {destination}") from error
+
+
+def verify_pointer(destination: Path, pointer: str, target: Path) -> None:
+    """Read back a written pointer and its referenced rule entry."""
+    expected = f"{pointer}\n"
+    try:
+        actual = destination.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise InstallError(f"无法回读规则入口: {destination}") from error
+    if actual != expected:
+        raise InstallError(f"规则入口回读内容不符: {destination}")
+    if not target.is_file():
+        raise InstallError(f"规则入口目标不可访问: {target}")
+
+
 def backup_path(path: Path) -> Path:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     candidate = path.with_name(f"{path.name}.bak.{stamp}")
@@ -51,6 +78,32 @@ def backup_path(path: Path) -> Path:
         candidate = path.with_name(f"{path.name}.bak.{stamp}.{index}")
         index += 1
     return candidate
+
+
+def reject_source_aliases(operations: Iterable[WriteOperation]) -> None:
+    """Reject any destination that aliases a source file in this installation."""
+    operations = list(operations)
+    sources = [operation.source for operation in operations if operation.source is not None]
+    for operation in operations:
+        if any(source is not None and same_file_identity(source, operation.destination) for source in sources):
+            raise InstallError(
+                f"安装目标不能与规范源文件共享文件身份: {operation.destination}"
+            )
+
+
+def reject_symlink_paths(operations: Iterable[WriteOperation]) -> None:
+    """Reject symlink-like destinations and parents before any write can follow them."""
+    def is_link(path: Path) -> bool:
+        is_junction = getattr(path, "is_junction", None)
+        return path.is_symlink() or (is_junction is not None and is_junction())
+
+    for operation in operations:
+        path = Path(os.path.abspath(operation.destination))
+        for component in (path, *path.parents):
+            if is_link(component):
+                raise InstallError(
+                    f"安装目标不能是符号链接/junction或位于其目录下: {operation.destination}"
+                )
 
 
 def tree_operations(source_dir: Path, destination_dir: Path, *, preserve_existing: bool) -> list[WriteOperation]:
@@ -109,7 +162,13 @@ def preflight(operations: Iterable[WriteOperation], *, force: bool) -> None:
         )
 
 
-def apply_operations(operations: Iterable[WriteOperation], *, force: bool, dry_run: bool) -> tuple[int, int, int]:
+def apply_operations(
+    operations: Iterable[WriteOperation],
+    *,
+    force: bool,
+    dry_run: bool,
+    verify: Callable[[], None] | None = None,
+) -> tuple[int, int, int]:
     operations = list(operations)
     written = skipped = backed_up = 0
     changed: list[tuple[Path, Path | None, bool]] = []
@@ -152,7 +211,9 @@ def apply_operations(operations: Iterable[WriteOperation], *, force: bool, dry_r
                 else:
                     destination.write_text(operation.content or "", encoding="utf-8")
             written += 1
-    except (OSError, InstallError) as error:
+        if verify is not None and not dry_run:
+            verify()
+    except (OSError, UnicodeError, InstallError) as error:
         rollback_errors: list[str] = []
         for destination, backup, existed_before in reversed(changed):
             try:
@@ -188,13 +249,19 @@ def install_project(args: argparse.Namespace) -> None:
     if target.exists() and not target.is_dir():
         raise InstallError(f"项目目标必须是目录: {target}")
 
-    entry_destination = (target / args.entry_file).resolve()
+    entry_destination = Path(os.path.abspath(target / args.entry_file))
     try:
         entry_destination.relative_to(target)
     except ValueError as error:
         raise InstallError("项目 --entry-file 必须位于目标项目目录内") from error
 
     entry, directories = EDITIONS[args.edition]
+    if not (ROOT / entry).is_file():
+        raise InstallError(f"规则入口不存在: {ROOT / entry}")
+    if getattr(args, "include_documents", False):
+        if args.edition not in DOCUMENT_EDITIONS:
+            raise InstallError("--include-documents 仅适用于 mini 或 rules 版本")
+        directories = (*directories, "documents")
     operations: list[WriteOperation] = []
 
     for directory in directories:
@@ -209,6 +276,8 @@ def install_project(args: argparse.Namespace) -> None:
         )
 
     operations.append(pointer_operation(entry_destination, entry))
+    reject_source_aliases(operations)
+    reject_symlink_paths(operations)
     destinations = [operation.destination for operation in operations]
     try:
         resolved_destinations = [destination.resolve().relative_to(target) for destination in destinations]
@@ -221,14 +290,19 @@ def install_project(args: argparse.Namespace) -> None:
             if destination in other.parents or other in destination.parents:
                 raise InstallError("项目 --entry-file 不能是规则或文档安装目标的父目录")
     preflight(operations, force=args.force)
-    written, skipped, backed_up = apply_operations(operations, force=args.force, dry_run=args.dry_run)
+    written, skipped, backed_up = apply_operations(
+        operations,
+        force=args.force,
+        dry_run=args.dry_run,
+        verify=lambda: verify_pointer(entry_destination, entry, target / entry),
+    )
     action = "预览完成" if args.dry_run else "项目安装完成"
     print(f"{action}: edition={args.edition}, 写入 {written}, 跳过 {skipped}, 备份 {backed_up}")
 
 
 def resolve_agent_entry(args: argparse.Namespace) -> Path:
     if args.entry_file:
-        return Path(args.entry_file).expanduser().resolve()
+        return Path(os.path.abspath(Path(args.entry_file).expanduser()))
     if args.agent == "custom":
         raise InstallError("agent=custom 时必须提供 --entry-file")
     return AGENT_PRESETS[args.agent].resolve()
@@ -240,12 +314,18 @@ def install_agent(args: argparse.Namespace) -> None:
     source_entry = (ROOT / entry).resolve()
     if not source_entry.is_file():
         raise InstallError(f"规则入口不存在: {source_entry}")
-    if destination == source_entry:
-        raise InstallError("用户级规则入口不能是当前 edition 的规范规则入口源文件")
+    if destination == source_entry or same_file_identity(source_entry, destination):
+        raise InstallError("用户级规则入口不能是当前 edition 的规范规则源文件或其文件别名")
 
     operation = pointer_operation(destination, source_entry.as_posix())
+    reject_symlink_paths((operation,))
     preflight((operation,), force=args.force)
-    written, skipped, backed_up = apply_operations((operation,), force=args.force, dry_run=args.dry_run)
+    written, skipped, backed_up = apply_operations(
+        (operation,),
+        force=args.force,
+        dry_run=args.dry_run,
+        verify=lambda: verify_pointer(destination, source_entry.as_posix(), source_entry),
+    )
     action = "预览完成" if args.dry_run else "Code Agent 安装完成"
     print(
         f"{action}: agent={args.agent}, edition={args.edition}, "
@@ -263,6 +343,11 @@ def build_parser() -> argparse.ArgumentParser:
     project.add_argument("target", help="目标项目目录")
     project.add_argument("--edition", choices=EDITIONS, default="mini")
     project.add_argument("--entry-file", default="AGENTS.md", help="项目规则入口文件名或相对路径")
+    project.add_argument(
+        "--include-documents",
+        action="store_true",
+        help="显式复制项目文档模板；模板内容必须先验证，不自动作为项目事实",
+    )
     project.add_argument("--force", action="store_true", help="备份后覆盖冲突的规则/入口文件；项目文档仍保留")
     project.add_argument("--dry-run", action="store_true", help="只显示计划，不写文件")
     project.set_defaults(handler=install_project)

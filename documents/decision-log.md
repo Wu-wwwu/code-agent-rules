@@ -1,3 +1,7 @@
+---
+document_status: template
+project_facts: none
+---
 # 决策日志（示例）
 
 > 初始项目可只保留空索引和空待决问题区。以下条目展示格式，不应作为真实决策沿用。
