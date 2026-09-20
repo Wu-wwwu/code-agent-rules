@@ -17,5 +17,5 @@
 ## 输出要求
 
 - 普通选择：仅在任务结果中简要说明采用方向、关键证据、排除的硬冲突和验证方式；不写入决策记录，也不要求写入项目文档
-- 需历史可追溯：按决策框架记录，写入前按 `methods/project-documents.md` 检查或初始化 `documents/decision-log.md`
+- 需保留选择依据：优先附着于当前技术方案，按 `methods/decision-recall.md` 判断独立建档和生命周期；写入前按 `methods/project-documents.md` 检查目标文档，不默认初始化日志
 - 不为低风险选择制造冗长方案会

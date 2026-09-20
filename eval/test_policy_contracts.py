@@ -1,4 +1,4 @@
-"""P0 规则语义和入口契约的回归测试。"""
+"""P0 规则语义和入口契约的回归测试。结构检查只证明文本存在，不证明真实行为。"""
 
 from pathlib import Path
 import unittest
@@ -90,6 +90,69 @@ class PolicyContractTests(unittest.TestCase):
                 self.assertTrue(content.startswith("---\n") or content.startswith("---\r\n"))
                 self.assertIn("document_status: template", content[:120])
                 self.assertIn("project_facts: none", content[:120])
+
+    def test_all_editions_expose_status_and_continuation_gate(self) -> None:
+        for relative_path in ("mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"):
+            with self.subTest(relative_path=relative_path):
+                policy = read_rule(relative_path)
+                self.assertIn("状态与继续门禁", policy)
+                for phrase in ("有效进展", "写入前", "继续前", "完成前"):
+                    self.assertIn(phrase, policy)
+
+    def test_status_gate_semantics_are_aligned(self) -> None:
+        required_fragments = (
+            "默认依据适用证据推进下一可验证动作",
+            "每次调查、验证或执行的可观察逻辑动作结束后检查",
+            "同一路径无有效进展时，下次尝试须说明改变了什么",
+            "写入前",
+            "继续前",
+            "拟执行动作超出授权范围时暂停越界动作",
+            "平台或用户提供的上下文、步骤或时间预算接近上限时",
+            "完成前",
+        )
+        for relative_path in ("mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"):
+            with self.subTest(relative_path=relative_path):
+                policy = read_rule(relative_path)
+                for fragment in required_fragments:
+                    self.assertIn(fragment, policy)
+
+    def test_decision_evidence_contracts(self) -> None:
+        for relative_path in (
+            "rules/business-analysis.md",
+            "mini/methods/decision-recall.md",
+            "lite/methods/decision-recall.md",
+        ):
+            with self.subTest(relative_path=relative_path):
+                policy = read_rule(relative_path)
+                for phrase in ("新建决策条件", "依据生命周期", "未来复用价值", "当前依赖", "留存义务"):
+                    self.assertIn(phrase, policy)
+                self.assertNotIn("仅在条件满足时才重新评估", policy)
+
+    def test_self_supports_local_selection_evidence(self) -> None:
+        self.assertIn("context.md", read_rule("self/core.md"))
+        context = read_rule("self/context.md")
+        self.assertIn("## 选择依据", context)
+        self.assertIn("不要求建立独立决策档案", context)
+        self.assertIn("未提交记录", context)
+
+    def test_modeling_methods_remain_reachable_after_extraction(self) -> None:
+        for entry, method in (
+            ("mini/agent.md", "mini/methods/project-context.md"),
+            ("lite/agent.md", "lite/methods/project-context.md"),
+            ("self/core.md", "self/context.md"),
+            ("rules/agent.md", "rules/coding-principles.md"),
+        ):
+            with self.subTest(entry=entry):
+                self.assertIn(Path(method).name, read_rule(entry))
+                self.assertIn("最小充分模型", read_rule(method))
+
+    def test_case_n_documents_state_gate_evaluation_protocol(self) -> None:
+        case_n = read_rule("eval/case-n-operational-criteria.md")
+        eval_readme = read_rule("eval/README.md")
+        self.assertIn("### 状态与继续门禁（四版通用）", case_n)
+        for phrase in ("文字假进展变体", "统计采样变体", "验证未完成的交付变体", "预算与恢复"):
+            self.assertIn(phrase, case_n)
+        self.assertIn("### 状态门禁的 A/B 评测", eval_readme)
 
 
 if __name__ == "__main__":

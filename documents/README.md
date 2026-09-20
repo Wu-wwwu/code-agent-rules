@@ -15,7 +15,7 @@ project_facts: none
 | `architecture.md` | 系统边界、模块职责、依赖方向与运行拓扑 |
 | `tech-stack.md` | 当前技术、版本证据、工具链和作用域约束 |
 | `data-flow.md` | 功能入口到输出的数据、状态、外部依赖与验证接缝 |
-| `decision-log.md` | 技术决策索引、记录与待决问题 |
+| `decision-log.md` | 少量重要独立依据的索引、当前说明引用、前提与失效条件；普通依据就地保存 |
 | `coding-standards.md` | 从实际代码观察到的项目规范 |
 | `business-rules.md` | 有证据支持的业务规则 |
 | `glossary.md` | 业务术语、代码实体与数据表映射 |

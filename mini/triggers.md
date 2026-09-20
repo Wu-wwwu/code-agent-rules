@@ -9,14 +9,16 @@
 | 认证/授权、密钥/敏感信息、外部输入、命令/路径/网络执行或生产环境 | `methods/security.md` |
 | 删除/覆盖数据、改权限或安全、覆盖配置、外部副作用、公开 API/Schema/共享契约变化 | `methods/destructive-analysis.md` |
 | 金额/支付/结算，或状态/权限/角色的目标业务语义 | `methods/business-rules.md` |
-| 历史技术决策可能约束当前方案 | `methods/decision-recall.md` |
+| 需保存/更新选择依据、当前依据缺失且影响判断、证据冲突、拟改变有效约束或用户要求回查 | `methods/decision-recall.md` |
 | major 升级、弃用到期或上游移除 | `methods/dependency-upgrade.md` |
 | 生成器、构建/格式化/编译工具、CI/CD 或生成物变化 | `methods/toolchain-scope.md` |
 | 子任务有独立完成标准且不依赖未产生的前序结果，并适合只读并行、隔离写入或独立专业复核 | `methods/multi-agent.md` |
 | 技术栈不明、新项目选型或技术方向改变系统边界 | `methods/technology-selection.md` |
-| 竞态/时序/非确定性/跨模块 Bug，或无法稳定复现 | `methods/bug-diagnosis.md` |
+| 竞态/时序/非确定性/跨模块 Bug、无法稳定复现，或验证失败且原因不明、修复后仍失败、未覆盖原始症状 | `methods/bug-diagnosis.md` |
 | 性能、容量、延迟、吞吐或资源消耗用于目标、选型或完成结论 | `methods/performance-evidence.md` |
 | 新增抽象/分层/模式、提取公共代码或结构重构 | `methods/neutral-design.md` |
 | 需从代码/Schema/表识别实体、关系或表示变换 | `methods/data-entity-analysis.md` |
-| 新功能、计划、跨模块、上下文恢复、需建立或移交任务环境，或实现路径/验证接缝不清 | `methods/project-context.md` |
+| 新功能、计划、跨模块、上下文恢复、需建立或移交任务环境、实现路径/验证接缝不清，或新增入口、表示变化、事务/外部副作用需要推导 | `methods/project-context.md` |
 仅在已加载方法准备实际读写目标项目的 `documents/*.md` 时，再加载 `methods/project-documents.md`。Bug 优先走诊断；只有上下文不足以诊断时才补项目上下文。权限执行风险走破坏性分析；权限目标语义不明时再叠加业务规则。
+
+接口行为未知且影响下一动作时，核对相关版本的实现、类型声明、文档、现有调用或隔离实验；禁止将猜测作为事实，证据足够即停止扩展。已知原因且有直接验证依据的失败沿局部修复路径继续，不自动展开完整诊断。

@@ -10,7 +10,7 @@
 4. 文档与代码、配置、Schema、测试、运行结果或用户说明冲突时标记冲突，不静默选边。
 模板只有在内容被代码、配置、测试或运行结果核验后，才可把 front matter 更新为 `document_status: active`、`project_facts: verified`；未核验时不要删除模板标记。
 
-常用职责：`project-doc.md` 记录目标与范围，`architecture.md` 记录边界与职责，`tech-stack.md` 记录实际技术及版本来源，`data-flow.md` 记录输入到输出路径，`business-rules.md` 记录有证据的规则，`decision-log.md` 记录需回查的决策，`coding-standards.md` 记录项目特有约定，`glossary.md` 记录已验证术语映射。
+常用职责：`project-doc.md` 记录目标与范围，`architecture.md` 记录边界与职责，`tech-stack.md` 记录实际技术及版本来源，`data-flow.md` 记录输入到输出路径，`business-rules.md` 记录有证据的规则，`decision-log.md` 仅承载需统一引用的重要独立依据，`coding-standards.md` 记录项目特有约定，`glossary.md` 记录已验证术语映射。选择依据优先放在相关方案、数据或流程说明旁；保存、去重、失效和清理按 `methods/decision-recall.md`，不默认创建或检索日志。
 
 文档缺失只表示没有可用持久化记录，不表示项目没有对应事实。改从 README、代码、配置、Schema、测试、运行结果、部署或提交历史取得当前动作所需事实证据；用户说明只提供目标、约束或待确认业务语义，不能单独证明当前实现，目标业务语义仍无依据时暂停裁决，不得猜测。
 
