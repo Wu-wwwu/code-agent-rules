@@ -32,7 +32,7 @@
 | T10 | 性能、容量、延迟、吞吐或资源消耗是目标或方案依据 | `methods/performance-evidence.md` |
 | T11 | 新增抽象/设计模式/分层，提取公共代码或重构结构 | `methods/neutral-design.md` |
 | T12 | 从代码/Schema/表识别实体、关系或表示变换 | `methods/data-entity-analysis.md` |
-| T13 | 新功能、计划、跨模块、上下文恢复、需建立/移交任务环境、实现路径不清，或新增入口、表示变化、事务/外部副作用需要推导 | `methods/project-context.md` |
+| T13 | 新功能、计划、跨模块、上下文恢复、需建立/移交任务环境、实现路径不清，或新增入口、表示变化、事务/外部副作用需要推导，或改动将改变既有执行顺序、状态转换或副作用时机 | `methods/project-context.md` |
 
 **读写目标项目 `documents/*.md`**：由已加载的方法继续加载 `methods/project-documents.md`；写入需模板时再加载 `methods/templates.md`。
 
