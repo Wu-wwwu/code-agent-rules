@@ -146,6 +146,49 @@ class PolicyContractTests(unittest.TestCase):
                 self.assertIn(Path(method).name, read_rule(entry))
                 self.assertIn("最小充分模型", read_rule(method))
 
+    def test_current_facts_and_audit_boundaries_are_preserved(self) -> None:
+        strong = read_rule("rules/document-init.md")
+        self.assertIn("写回内容形成当前基线，不构成永久事实", strong)
+        self.assertIn("实现、配置、Schema、测试或运行结果变化时", strong)
+
+        decision = read_rule("rules/business-analysis.md")
+        self.assertIn("用户确认只说明目标、约束或授权，不证明实现正确", decision)
+        self.assertIn("编号、日期、状态", decision)
+        self.assertIn("仅在需要识别生命周期、审计留存或当前依赖时记录", decision)
+
+        audit = read_rule("rules/destructive-analysis.md")
+        self.assertIn("可核对的变更事实、适用授权、实际影响、验证结果和残余风险", audit)
+        self.assertIn("不等于技术决策", audit)
+
+    def test_minimal_model_distinguishes_data_lifecycles_without_forcing_all_tasks(self) -> None:
+        for relative_path in (
+            "rules/coding-principles.md",
+            "mini/methods/project-context.md",
+            "lite/methods/project-context.md",
+        ):
+            with self.subTest(relative_path=relative_path):
+                policy = read_rule(relative_path)
+                self.assertIn("内存生命周期", policy)
+                self.assertIn("持久化时机", policy)
+                self.assertIn("缓存生命周期", policy)
+                self.assertIn("消息发送/确认时机", policy)
+                self.assertIn("只在某一边界影响当前动作", policy)
+                self.assertIn("模型不能改变当前动作或完成判断时，不继续扩展模型", policy)
+
+    def test_case_o_covers_current_facts_lifecycles_and_lightweight_path(self) -> None:
+        case = read_rule("eval/case-o-current-facts-and-lifecycles.md")
+        eval_index = read_rule("eval/README.md")
+        for phrase in (
+            "当前证据与旧记录冲突",
+            "简单任务轻量路径",
+            "多种生命周期边界",
+            "决策与审计边界",
+            "消息发送与数据库提交时机",
+        ):
+            self.assertIn(phrase, case)
+        self.assertIn("case-o-current-facts-and-lifecycles.md", eval_index)
+        self.assertIn("待评测", eval_index)
+
     def test_case_n_documents_state_gate_evaluation_protocol(self) -> None:
         case_n = read_rule("eval/case-n-operational-criteria.md")
         eval_readme = read_rule("eval/README.md")

@@ -53,6 +53,7 @@
 | [case-l-project-context.md](./case-l-project-context.md) | 综合工程场景 | 新增功能形成最小入口到验证路径，局部任务保持轻量 | ⚠️ 通用原则 | ⚠️ 通用原则 |
 | [case-m-code-convergence.md](./case-m-code-convergence.md) | 综合工程场景 | 代码收束、逻辑闭合、兼容并存与停止条件 | ✅ | ✅ |
 | [case-n-operational-criteria.md](./case-n-operational-criteria.md) | 综合工程场景 | 模糊程度词的操作性判定、证据复用、稳定边界、回退与委派条件、状态与继续门禁 | ✅ | ✅ |
+| [case-o-current-facts-and-lifecycles.md](./case-o-current-facts-and-lifecycles.md) | 综合工程场景 | 当前事实优先、最小记录、决策/审计区分、数据生命周期建模与简单任务轻量路径 | 待评测 | 待评测 |
 
 ## 维护约定
 
