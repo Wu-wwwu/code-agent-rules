@@ -189,6 +189,25 @@ class PolicyContractTests(unittest.TestCase):
         self.assertIn("case-o-current-facts-and-lifecycles.md", eval_index)
         self.assertIn("待评测", eval_index)
 
+    def test_module_goal_lifecycle_method_is_routed_and_evaluated(self) -> None:
+        entry = read_rule("rules/agent.md")
+        method = read_rule("rules/module-development.md")
+        case = read_rule("eval/case-p-module-goal-lifecycle.md")
+        eval_index = read_rule("eval/README.md")
+
+        self.assertIn("./module-development.md", entry)
+        for phrase in ("proposed", "active", "paused", "blocked", "completed", "superseded"):
+            self.assertIn(phrase, method)
+        self.assertIn("不要求每轮输出完整状态表", method)
+        self.assertIn("不替代风险/授权门禁", method)
+        self.assertIn("模块未完成，或尚未明确执行清理前，保留仍可能影响本模块", method)
+        self.assertIn("同一决策只维护一个权威条目", method)
+        self.assertIn("不要求创建模块目录、局部 README", method)
+        for phrase in ("局部拼写修复沿轻量路径完成", "superseded", "逐轮决策", "模块局部工作区"):
+            self.assertIn(phrase, case)
+        self.assertIn("case-p-module-goal-lifecycle.md", eval_index)
+        self.assertIn("待评测", eval_index)
+
     def test_case_n_documents_state_gate_evaluation_protocol(self) -> None:
         case_n = read_rule("eval/case-n-operational-criteria.md")
         eval_readme = read_rule("eval/README.md")
