@@ -92,6 +92,7 @@
 |----------|------------|----------------|
 | 需要调查、审查、设计、实现、验证或恢复？ | 本文件「漏斗式执行深度」「Agent 执行循环」 | 代码、配置、测试、日志、运行结果和版本历史 |
 | 用户多轮补充需求，如何避免累加式生成和文档追加？ | `./incremental-refinement.md` | 已有模型、代码实现、项目文档当前章节 |
+| 如何选择最简实现？避免过度设计？ | `./minimal-implementation.md` | 已有代码、标准库、依赖清单 |
 | 如何跟踪跨阶段模块目标、目标切换并对照成果？ | `./module-development.md` | 当前模块主计划、实现事实和验收证据 |
 | 变更影响哪些模块、数据、API 和测试？ | `./business-analysis.md`「变更影响分析」 | `/documents/architecture.md`、`/documents/data-flow.md` |
 | 是否破坏兼容性、数据、安全或核心流程？ | `./destructive-analysis.md` | `/documents/decision-log.md` |
