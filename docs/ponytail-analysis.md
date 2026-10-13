@@ -4,6 +4,8 @@
 **分析日期**: 2026-10-12  
 **Stars**: 161.4k | **Forks**: 8.7k
 
+> 本文件是历史分析，不是 Agent 执行规则。文中固定行数、GitHub stars、维护周期及未来集成建议均为当时的讨论提案，不构成当前门禁。当前实现要求以 `../rules/minimal-implementation.md`、`../rules/coding-principles.md` 和 `../rules/agent.md` 为准。
+
 ---
 
 ## 一、核心理念

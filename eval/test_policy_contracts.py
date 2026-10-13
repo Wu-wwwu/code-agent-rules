@@ -208,6 +208,51 @@ class PolicyContractTests(unittest.TestCase):
         self.assertIn("case-p-module-goal-lifecycle.md", eval_index)
         self.assertIn("待评测", eval_index)
 
+    def test_minimal_implementation_is_compact_and_avoids_arbitrary_thresholds(self) -> None:
+        policy = read_rule("rules/minimal-implementation.md")
+        coding = read_rule("rules/coding-principles.md")
+        for phrase in (
+            "目标必要性",
+            "现有实现",
+            "平台能力",
+            "现有依赖",
+            "最小正确实现",
+            "维护/安全/许可/运行影响",
+            "无当前消费者且无留存义务时删除",
+        ):
+            self.assertIn(phrase, policy)
+        self.assertNotRegex(policy, r"50\s*行|stars\s*>?\s*1000|GitHub stars")
+        self.assertNotRegex(coding, r"50\s*行|stars\s*>?\s*1000")
+
+    def test_incremental_refinement_requires_evidence_not_model_accumulation(self) -> None:
+        method = read_rule("rules/incremental-refinement.md")
+        coding = read_rule("rules/coding-principles.md")
+        case_q = read_rule("eval/case-q-incremental-refinement.md")
+
+        for phrase in (
+            "当前行为",
+            "目标行为",
+            "差异",
+            "用户使用“补充”“另外”等词",
+            "只是检查信号，不足以证明应归并",
+            "共享同一职责、业务不变量或变化原因",
+            "只有代码、Schema、契约或测试证明存在状态集合和状态转换约束时",
+            "不得因增加一个条件、异常路径或功能说明就引入状态枚举",
+        ):
+            self.assertIn(phrase, method)
+        self.assertIn("实体、名称、分支或措辞相似本身不构成归并依据", coding)
+        self.assertIn("不要求特定字段、函数、状态表示、验证层或状态机", case_q)
+        self.assertIn("不补造状态机", case_q)
+
+    def test_logic_test_requirements_are_conditioned_on_existing_contracts(self) -> None:
+        for path in ("mini/agent.md", "lite/agent.md"):
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                self.assertIn("逻辑改动补", policy)
+                self.assertIn("只有证据确认存在状态机或状态转换契约时", policy)
+                self.assertIn("不得为满足测试分类而补造状态机", policy)
+                self.assertNotIn("状态机全覆盖，含非法转换", policy)
+
     def test_case_n_documents_state_gate_evaluation_protocol(self) -> None:
         case_n = read_rule("eval/case-n-operational-criteria.md")
         eval_readme = read_rule("eval/README.md")

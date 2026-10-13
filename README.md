@@ -58,6 +58,7 @@
 | `lite/triggers.md` | Lite 版专项路由 | 将高价值候选信号映射到自包含方法，并按需加载项目记忆模板 |
 | `rules/agent.md` | 循环控制总纲 | 任务状态恢复、漏斗式执行深度、能力路由与退出、门禁和循环控制 |
 | `rules/module-development.md` | 模块局部工作区与目标生命周期 | 按需组织模块目标、局部决策/模型/验证材料、状态切换、基线对照和明确清理 |
+| `rules/minimal-implementation.md` | 最小实现门禁 | 按需检查目标必要性、复用优先、依赖引入、旧实现清理和完成条件 |
 | `self/core.md` | Self 版最小入口 | 目标、证据、最小动作、反馈、安全停机和完成门禁 |
 | `self/README.md` | Self 版说明与能力索引 | 独立使用方式及按触发场景加载上下文、Bug、迁移或安全模块 |
 | `rules/business-analysis.md` | 业务决策 | 变更影响分析、决策四步框架、冲突回查、优先级体系 |
