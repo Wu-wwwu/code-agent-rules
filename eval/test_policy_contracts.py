@@ -189,6 +189,15 @@ class PolicyContractTests(unittest.TestCase):
         self.assertIn("case-o-current-facts-and-lifecycles.md", eval_index)
         self.assertIn("待评测", eval_index)
 
+    def test_case_q_is_indexed_with_applicable_editions(self) -> None:
+        eval_index = read_rule("eval/README.md")
+        self.assertIn("case-q-incremental-refinement.md", eval_index)
+        self.assertIn("适用：rules / mini / lite", eval_index)
+        self.assertIn("不适用", eval_index)
+        lines = eval_index.splitlines()
+        case_k = next(i for i, line in enumerate(lines) if "case-k-toolchain-scope.md" in line)
+        self.assertIn("|", lines[case_k - 1])
+
     def test_module_goal_lifecycle_method_is_routed_and_evaluated(self) -> None:
         entry = read_rule("rules/agent.md")
         method = read_rule("rules/module-development.md")

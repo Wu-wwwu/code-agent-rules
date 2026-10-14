@@ -48,13 +48,13 @@
 | [case-h-adaptive-depth.md](./case-h-adaptive-depth.md) | 综合工程场景 | 漏斗式执行深度、能力收缩、证据复用 | ✅ | ✅ |
 | [case-i-performance-evidence.md](./case-i-performance-evidence.md) | 综合工程场景 | 性能基线、容量取舍、同负载验证 | ✅ | ✅ |
 | [case-j-user-technology-direction.md](./case-j-user-technology-direction.md) | 综合工程场景 | 用户指定技术、兼容冲突、自主选型边界 | ✅ | ✅ |
-
 | [case-k-toolchain-scope.md](./case-k-toolchain-scope.md) | 综合工程场景 | 生成工具链、配置作用域、产物验证 | ✅ | ✅ |
 | [case-l-project-context.md](./case-l-project-context.md) | 综合工程场景 | 新增功能形成最小入口到验证路径，局部任务保持轻量 | ⚠️ 通用原则 | ⚠️ 通用原则 |
 | [case-m-code-convergence.md](./case-m-code-convergence.md) | 综合工程场景 | 代码收束、逻辑闭合、兼容并存与停止条件 | ✅ | ✅ |
 | [case-n-operational-criteria.md](./case-n-operational-criteria.md) | 综合工程场景 | 模糊程度词的操作性判定、证据复用、稳定边界、回退与委派条件、状态与继续门禁 | ✅ | ✅ |
 | [case-o-current-facts-and-lifecycles.md](./case-o-current-facts-and-lifecycles.md) | 综合工程场景 | 当前事实优先、最小记录、决策/审计区分、数据生命周期建模与简单任务轻量路径 | 待评测 | 待评测 |
 | [case-p-module-goal-lifecycle.md](./case-p-module-goal-lifecycle.md) | 综合工程场景 | 模块目标拆分、状态恢复、目标切换、临时选择、基线对照和收尾 | 待评测 | 待评测 |
+| [case-q-incremental-refinement.md](./case-q-incremental-refinement.md) | 综合工程场景 | 当前/目标/差异证据核对、条件式归并、避免补造模型、文档收敛（适用：rules / mini / lite；Self 不适用） | 待评测 | 不适用 |
 
 ## 维护约定
 

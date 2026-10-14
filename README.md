@@ -2,6 +2,8 @@
 
 > 让 AI Coding Agent 依据项目证据形成认知、执行改动并验证结果。
 
+Evidence-driven behavior rules for AI coding agents. Choose a standalone edition (Mini, Lite, Rules, or Self) to guide task scoping, implementation, risk handling, verification, and project-memory updates. Includes an installer and regression evaluation cases.
+
 ## 这是什么
 
 一个可以被 AI Coding Agent 加载的**规则集**。它不是仅供人类阅读的编码规范文档，而是直接嵌入 Agent 工作流的**行为约束与认知规范**：
