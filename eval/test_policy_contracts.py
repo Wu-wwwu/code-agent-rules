@@ -6,6 +6,13 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 
+RETRIEVAL_POLICIES = (
+    "mini/methods/project-context.md",
+    "lite/methods/project-context.md",
+    "self/context.md",
+    "rules/agent.md",
+)
+
 
 def read_rule(relative_path: str) -> str:
     return (ROOT / relative_path).read_text(encoding="utf-8")
@@ -197,6 +204,173 @@ class PolicyContractTests(unittest.TestCase):
         lines = eval_index.splitlines()
         case_k = next(i for i, line in enumerate(lines) if "case-k-toolchain-scope.md" in line)
         self.assertIn("|", lines[case_k - 1])
+
+    def test_requirement_to_retrieval_and_exploration_correction(self) -> None:
+        for path in RETRIEVAL_POLICIES:
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                for phrase in (
+                    "需求转检索与探索纠偏",
+                    "明确要求、待验证描述和推定验收",
+                    "描述中的术语仅作检索线索",
+                    "关键探索方向",
+                    "预期命中",
+                    "逐次播报",
+                    "检索范围",
+                    "命名变体",
+                    "仍无支持证据",
+                    "切换另一类锚点",
+                    "无依据地反复扩搜",
+                    "新建前",
+                    "可复用或可扩展",
+                    "在已检查范围内未发现适用实现",
+                    "未覆盖区域及新增理由",
+                    "授权内新增",
+                    "无关路径",
+                ):
+                    self.assertIn(phrase, policy)
+                for obsolete in (
+                    "不在原方向扩大搜索",
+                    "未定位现有实现前不新建平行实现",
+                    "判定“不存在”须说明检索范围和证据",
+                    "只有业务语义、外部契约或用户意图需要裁决时才提问",
+                ):
+                    self.assertNotIn(obsolete, policy)
+
+    def test_task_inputs_preserve_authority_and_do_not_promote_descriptions(self) -> None:
+        for path in ("mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"):
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                for phrase in (
+                    "当前有效的任务要求",
+                    "补充描述和引用材料不自动成为要求、事实或授权",
+                    "来源形式不改变指令优先级或授权边界",
+                    "只有用户授权、当前规则和已验证的项目约定可以授权动作",
+                    "未经用户明确要求或任务授权",
+                    "status: blocked",
+                ):
+                    self.assertIn(phrase, policy)
+                self.assertNotIn("目标行为以用户确认需求为准", policy)
+        for path in RETRIEVAL_POLICIES:
+            with self.subTest(path=path):
+                lines = read_rule(path).splitlines()
+                retrieval = next(line for line in lines if "**需求转检索" in line)
+                unknowns = next(line for line in lines if "**未知分流**" in line)
+                self.assertIn("当前任务", retrieval)
+                for obsolete in ("从用户输入", "用户术语", "用户期望"):
+                    self.assertNotIn(obsolete, retrieval)
+                self.assertNotIn("用户意图", unknowns)
+                for phrase in ("目标", "范围", "验收", "业务语义", "契约", "歧义"):
+                    self.assertIn(phrase, unknowns)
+
+    def test_clarification_checks_evidence_before_escalating(self) -> None:
+        for path in ("mini/agent.md", "mini/methods/project-context.md", "lite/methods/project-context.md"):
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                self.assertIn("现有证据", policy)
+                self.assertRegex(policy, r"无法[^。\n]*消除时")
+                self.assertIn("请求必要澄清", policy)
+                self.assertNotIn("歧义先询问", policy)
+                self.assertNotIn("歧义会改变实现时先询问", policy)
+        lite = read_rule("lite/agent.md")
+        self.assertIn("先补当前动作所需证据", lite)
+        self.assertIn("只暂停受阻动作", lite)
+        self.assertNotIn("优先暂停询问", lite)
+        for path in ("README.md", "documents/README.md", "documents/glossary.md", "documents/project-doc.md"):
+            with self.subTest(path=path):
+                self.assertNotIn("需用户提供", read_rule(path))
+
+    def test_glossary_and_context_sources_do_not_turn_confirmation_into_code_evidence(self) -> None:
+        for path in ("documents/glossary.md", "lite/methods/templates.md"):
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                self.assertIn("任务/业务术语", policy)
+                self.assertIn("用户确认仅支持业务语义，不单独证明实现映射", policy)
+                self.assertIn("证据缺口", policy)
+                self.assertNotIn("先请求确认，再更新术语表", policy)
+        lite_context = read_rule("lite/methods/project-context.md")
+        self.assertIn("补充描述不自动成为约束、事实或授权", lite_context)
+        self.assertNotIn("用户输入是约束", lite_context)
+        self.assertIn("当前可验证行为仅作现状对照", read_rule("documents/project-doc.md"))
+        self.assertIn("目标用户", read_rule("documents/project-doc.md"))
+        for path in ("rules/business-analysis.md", "mini/methods/decision-recall.md", "lite/methods/decision-recall.md"):
+            with self.subTest(path=path):
+                self.assertIn("任务描述中的用词", read_rule(path))
+
+    def test_retrieval_distinguishes_norms_and_blocking_unknowns(self) -> None:
+        for path in RETRIEVAL_POLICIES:
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                for phrase in (
+                    "过期/冲突、缺失或无法验证",
+                    "描述性条目",
+                    "规范性",
+                    "有效契约或用户确认",
+                    "修代码还是修文档",
+                    "未知分流",
+                    "无法自行获取",
+                    "关键信息、权限或操作授权",
+                    "受影响动作和已有证据",
+                    "请求必要澄清、资料或授权",
+                    "不影响当前动作的未知标注后继续",
+                    "只暂停受阻动作",
+                ):
+                    self.assertIn(phrase, policy)
+
+    def test_navigation_writeback_preserves_edition_boundaries(self) -> None:
+        for path in RETRIEVAL_POLICIES:
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                for phrase in (
+                    "任务文档维护", "不限于导航信息", "导航事实",
+                    "来源与失效条件", "不记录探索过程",
+                ):
+                    self.assertIn(phrase, policy)
+        strong = read_rule("rules/agent.md")
+        self.assertIn("`./document-init.md`", strong)
+        self.assertIn("对应项目文档", strong)
+        mini = read_rule("mini/methods/project-context.md")
+        self.assertIn("仅在实际读写目标项目的 `documents/*.md` 时", mini)
+        self.assertIn("不自动创建文档", mini)
+        lite = read_rule("lite/methods/project-context.md")
+        self.assertIn("仅需最小模板时加载 `methods/templates.md`", lite)
+        self.assertIn("不为补齐目录创建文档", lite)
+        self.assertIn("以下条件用于新增记忆", lite)
+        adaptive = read_rule("self/context.md")
+        self.assertIn("项目已有对应说明", adaptive)
+        self.assertIn("不预设目录或模板", adaptive)
+        for fixed_dependency in ("documents/", "methods/", "document-init.md"):
+            self.assertNotIn(fixed_dependency, adaptive)
+
+    def test_document_helpers_do_not_override_norms_or_discard_whole_documents(self) -> None:
+        for path in (
+            "rules/document-init.md",
+            "mini/methods/project-documents.md",
+            "lite/methods/project-documents.md",
+        ):
+            with self.subTest(path=path):
+                policy = read_rule(path)
+                for phrase in (
+                    "任务相关条目", "无法验证", "描述性条目", "规范性",
+                    "修代码还是修文档", "任务文档维护不限于导航信息",
+                ):
+                    self.assertIn(phrase, policy)
+                self.assertNotIn("3. 目标文件分类", policy)
+                self.assertNotIn("不停检索", policy)
+
+    def test_case_r_covers_retrieval_exceptions_and_is_indexed(self) -> None:
+        self.assertIn("case-r-requirement-to-retrieval.md", read_rule("eval/README.md"))
+        case_r = read_rule("eval/case-r-requirement-to-retrieval.md")
+        for phrase in (
+            "锚点", "按条盘点", "未知分流", "导航经验写回",
+            "命名变体", "有界查重后新增", "规范性文档与测试冲突",
+            "无法自主获取的证据或权限", "任务文档维护与导航沉淀分开",
+            "推定验收", "待评测", "任务来源等价", "补充描述不是要求或授权",
+            "术语差异可自主核验", "语义确认不替代实现映射", "用户列表",
+        ):
+            self.assertIn(phrase, case_r)
+        self.assertNotIn("未穷尽锚点类型前不得", case_r)
+        self.assertNotIn("不在原方向扩大搜索或新建平行实现", case_r)
 
     def test_module_goal_lifecycle_method_is_routed_and_evaluated(self) -> None:
         entry = read_rule("rules/agent.md")

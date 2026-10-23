@@ -4,12 +4,12 @@
 
 ## 怎么用
 
-1. 运行 `py eval/check_rule_references.py`（也可用环境中的 `python`），检查跨文件规则引用的目标文件和章节标题仍然存在、未重新引入数字章节号引用，并确认根目录 `AGENTS.md` 与 `CLAUDE.md` 都是只包含一个有效规则路径的纯指针文件。
-2. 修改 `install.py` 或安装说明后运行 `py -m unittest -v eval.test_install`，验证项目安装、Agent 安装、冲突保护、备份、dry-run 和路径边界。
+1. 使用 Python 3.8 或更高版本。运行 `py -3 eval/check_rule_references.py`（或环境中的 Python 3 命令），检查跨文件规则引用的目标文件和章节标题仍然存在、未重新引入数字章节号引用，并确认根目录 `AGENTS.md` 与 `CLAUDE.md` 都是只包含一个有效规则路径的纯指针文件。
+2. 修改 `install.py` 或安装说明后运行 `py -3 -m unittest -v eval.test_install`，验证项目安装、Agent 安装、冲突保护、备份、dry-run 和路径边界。
 3. 将每个案例文件中的**模拟任务**交给加载了被测规则版本的 Agent（新开会话，不给额外提示）。
 4. 对照案例的**期望行为检查点**逐项核对 Agent 的实际行为。标 ★ 的为关键检查点。
 5. 全部关键检查点通过 = 该案例通过；任一关键检查点失败 = 行为回归，需检查规则改动是否破坏了对应条款的可触发性或可发现性。
-6. 运行 `py -m unittest -v eval.test_policy_contracts`，检查四个独立入口的安全、版本控制、阻塞和最终结果契约、审计记录标题，以及「状态与继续门禁」的标题与关键短语结构。
+6. 运行 `py -3 -m unittest -v eval.test_policy_contracts`，检查四个独立入口的安全、版本控制、阻塞和最终结果契约、审计记录标题，以及「状态与继续门禁」的标题与关键短语结构。
 7. 每个支持的平台必须另做入口加载 smoke test；引用检查器只能证明路径和文件存在，不能证明平台实际加载裸指针。
 
 
@@ -55,6 +55,7 @@
 | [case-o-current-facts-and-lifecycles.md](./case-o-current-facts-and-lifecycles.md) | 综合工程场景 | 当前事实优先、最小记录、决策/审计区分、数据生命周期建模与简单任务轻量路径 | 待评测 | 待评测 |
 | [case-p-module-goal-lifecycle.md](./case-p-module-goal-lifecycle.md) | 综合工程场景 | 模块目标拆分、状态恢复、目标切换、临时选择、基线对照和收尾 | 待评测 | 待评测 |
 | [case-q-incremental-refinement.md](./case-q-incremental-refinement.md) | 综合工程场景 | 当前/目标/差异证据核对、条件式归并、避免补造模型、文档收敛（适用：rules / mini / lite；Self 不适用） | 待评测 | 不适用 |
+| [case-r-requirement-to-retrieval.md](./case-r-requirement-to-retrieval.md) | 综合工程场景 | 需求转检索、锚点纠偏、文档按条盘点、未知分流、导航经验写回（适用：四版） | 待评测 | 待评测 |
 
 ## 维护约定
 
