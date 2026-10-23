@@ -6,6 +6,7 @@ import argparse
 import filecmp
 import os
 import shutil
+import stat
 import sys
 from dataclasses import dataclass
 from datetime import datetime
@@ -94,8 +95,25 @@ def reject_source_aliases(operations: Iterable[WriteOperation]) -> None:
 def reject_symlink_paths(operations: Iterable[WriteOperation]) -> None:
     """Reject symlink-like destinations and parents before any write can follow them."""
     def is_link(path: Path) -> bool:
+        if path.is_symlink():
+            return True
         is_junction = getattr(path, "is_junction", None)
-        return path.is_symlink() or (is_junction is not None and is_junction())
+        if is_junction is not None:
+            return is_junction()
+        if os.name != "nt":
+            return False
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
+            return False
+        except OSError as error:
+            raise InstallError(f"无法确认安装目标路径类型: {path}") from error
+
+        reparse_tag = getattr(metadata, "st_reparse_tag", None)
+        if reparse_tag is not None:
+            return reparse_tag == getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", 0xA0000003)
+        attributes = getattr(metadata, "st_file_attributes", 0)
+        return bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
 
     for operation in operations:
         path = Path(os.path.abspath(operation.destination))

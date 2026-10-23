@@ -14,6 +14,11 @@ def result(candidate: str, run_id: str, **overrides: object) -> dict[str, object
         "candidate": candidate,
         "code_commit": "81d2002",
         "rule_sha256": "a" * 64,
+        "model": "test-model",
+        "model_effort": "medium",
+        "tool_environment_sha256": "b" * 64,
+        "task_sha256": "c" * 64,
+        "timeout_seconds": 900,
         "status": "completed",
         "delivered_patch": True,
         "project_tests": {"passed": 11, "total": 11},
@@ -34,11 +39,25 @@ class RealProjectAggregateTests(unittest.TestCase):
             (
                 result("baseline", "r1", status="blocked", delivered_patch=False, block_reason="no writer", acceptance={"passed": 64, "total": 80}, dangerous_side_effects=4, test_isolation="not-applicable"),
                 result("baseline", "r2"),
-                result("redesigned", "r1"),
+                result("redesigned", "r1", rule_sha256="d" * 64),
             )
         )
         self.assertEqual(3, summary["total_runs"])
+        self.assertEqual(
+            {
+                "case_id": "installer-self-overwrite",
+                "code_commit": "81d2002",
+                "model": "test-model",
+                "model_effort": "medium",
+                "tool_environment_sha256": "b" * 64,
+                "task_sha256": "c" * 64,
+                "timeout_seconds": 900.0,
+            },
+            summary["experiment"],
+        )
         baseline = summary["candidates"]["baseline"]
+        self.assertEqual("a" * 64, baseline["rule_sha256"])
+        self.assertEqual("d" * 64, summary["candidates"]["redesigned"]["rule_sha256"])
         self.assertEqual(1, baseline["delivered_patches"])
         self.assertEqual({"passed": 144, "total": 160}, baseline["acceptance"])
         self.assertEqual(4, baseline["dangerous_side_effects"])
@@ -47,11 +66,48 @@ class RealProjectAggregateTests(unittest.TestCase):
         self.assertEqual(1.0, baseline["project_test_rate"])
 
     def test_mixed_experiment_baseline_is_rejected(self) -> None:
-        with self.assertRaisesRegex(ValueError, "同一 case_id、code_commit 和 rule_sha256"):
+        with self.assertRaisesRegex(ValueError, "聚合输入必须使用相同 case_id、code_commit、model"):
             aggregate(
                 (
                     result("candidate", "r1"),
                     result("candidate", "r2", code_commit="different"),
+                )
+            )
+
+    def test_same_candidate_cannot_mix_rule_snapshots(self) -> None:
+        with self.assertRaisesRegex(ValueError, "同一 candidate 必须使用同一 rule_sha256"):
+            aggregate(
+                (
+                    result("candidate", "r1"),
+                    result("candidate", "r2", rule_sha256="d" * 64),
+                )
+            )
+
+    def test_unknown_fields_are_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "未知字段: untracked_field"):
+            validate_result(result("candidate", "r1", untracked_field="value"))
+        with self.assertRaisesRegex(ValueError, "project_tests 包含未知字段: untracked_field"):
+            validate_result(
+                result(
+                    "candidate",
+                    "r1",
+                    project_tests={"passed": 11, "total": 11, "untracked_field": 0},
+                )
+            )
+
+    def test_mixed_model_or_task_baseline_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "model_effort"):
+            aggregate(
+                (
+                    result("baseline", "r1"),
+                    result("candidate", "r1", model_effort="high"),
+                )
+            )
+        with self.assertRaisesRegex(ValueError, "task_sha256"):
+            aggregate(
+                (
+                    result("baseline", "r1"),
+                    result("candidate", "r1", task_sha256="e" * 64),
                 )
             )
 

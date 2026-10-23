@@ -6,6 +6,7 @@ import contextlib
 import importlib.util
 import io
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -313,26 +314,61 @@ class InstallerTests(unittest.TestCase):
 
     def test_agent_entry_junction_cannot_overwrite_external_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external_directory:
+            if os.name != "nt":
+                self.skipTest("Windows junctions are only available on Windows")
             root = Path(directory)
             external = Path(external_directory)
-            entry_file = root / "RULES.md"
+            linked_directory = root / "linked"
+            environment = os.environ.copy()
+            environment.update(
+                {
+                    "CODE_AGENT_JUNCTION_PATH": str(linked_directory),
+                    "CODE_AGENT_JUNCTION_TARGET": str(external),
+                }
+            )
             try:
-                os.symlink(external, entry_file, target_is_directory=True)
+                created = subprocess.run(
+                    [
+                        "powershell.exe",
+                        "-NoProfile",
+                        "-NonInteractive",
+                        "-Command",
+                        "New-Item -ItemType Junction -Path $env:CODE_AGENT_JUNCTION_PATH "
+                        "-Target $env:CODE_AGENT_JUNCTION_TARGET | Out-Null",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    env=environment,
+                    check=False,
+                )
             except OSError as error:
                 self.skipTest(f"junction creation unavailable: {error}")
+            if created.returncode != 0:
+                self.skipTest(f"junction creation unavailable: {created.stderr.strip()}")
 
-            self.assertEqual(
-                1,
-                self.run_installer(
-                    "agent",
-                    "custom",
-                    "--entry-file",
-                    str(entry_file),
-                    "--force",
-                ),
-            )
-            self.assertTrue(entry_file.is_symlink())
-            self.assertFalse((external / "RULES.md").exists())
+            self.assertTrue(linked_directory.exists())
+            self.assertFalse(linked_directory.is_symlink())
+            external_entry = external / "RULES.md"
+            external_entry.write_text("external content\n", encoding="utf-8")
+            entry_file = linked_directory / "RULES.md"
+
+            for context in (
+                contextlib.nullcontext(),
+                mock.patch.object(INSTALLER.Path, "is_junction", None, create=True),
+            ):
+                with context:
+                    self.assertEqual(
+                        1,
+                        self.run_installer(
+                            "agent",
+                            "custom",
+                            "--entry-file",
+                            str(entry_file),
+                            "--force",
+                        ),
+                    )
+                self.assertEqual("external content\n", external_entry.read_text(encoding="utf-8"))
+                self.assertEqual([], list(external.rglob("*.bak.*")))
 
     def test_project_entry_under_symlink_directory_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:

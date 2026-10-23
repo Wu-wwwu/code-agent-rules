@@ -86,7 +86,7 @@ Evidence-driven behavior rules for AI coding agents. Choose a standalone edition
 - **Mini 默认版**：默认只常驻 `mini/agent.md`，任务开始或范围变化时读取短路由表 `mini/triggers.md`，命中候选信号后才加载对应 `methods/` 确认详细适用条件。保留安全、证据、闭环和关键专项能力，同时降低任务级加载成本；`documents/` 是按需检查和初始化的可选项目记忆库，缺失本身不阻塞普通任务。
 - **Lite 版**：常驻 `lite/agent.md`，按 `lite/triggers.md` 加载最少的自包含方法。项目长期记忆通过 `lite/methods/project-documents.md` 与 `templates.md` 按需创建；安装时不预置根 `documents/`。
 - **强约束版**：使用 `rules/agent.md` 及其专项规则，按需创建或显式安装 `documents/`。含固定项目文档体系与决策回查（组织记忆）。适合团队需要统一项目记忆、明确门禁和可审计流程的场景。
-- **Self 独立版**：默认只加载 `self/core.md`；触发复杂场景时再依据 `self/README.md` 加载本目录对应模块。适合资料形态不固定，希望 Agent 从代码、配置、测试、运行结果、历史和用户说明中动态形成项目认知，并自主确定语言、技术栈和实现方向的场景。Self 版支持就地维护选择依据和必要的定向追溯，但不提供固定的独立决策档案体系；需要统一档案格式时采用强约束版或项目自有规范。
+- **Self 独立版**：默认只加载 `self/core.md`；触发复杂场景时再依据 `self/README.md` 加载本目录对应模块。适合资料形态不固定，希望 Agent 从代码、配置、测试、运行结果、历史及任务描述中动态形成项目认知，并自主确定语言、技术栈和实现方向的场景。Self 版支持就地维护选择依据和必要的定向追溯，但不提供固定的独立决策档案体系；需要统一档案格式时采用强约束版或项目自有规范。
 
 ### 强约束版最小起步
 
@@ -160,22 +160,22 @@ E:/agent-rules/agent.md
 
 ### 安装辅助
 
-仓库根目录的 `install.py` 使用 Python 标准库运行，支持把规则复制到某个项目，或为某个 Code Agent 写入用户级规则指针。所有模式默认先做冲突检查：目标已有不同内容时不写入；确认覆盖时使用 `--force`，安装器会先创建带时间戳的 `.bak` 备份。可先加 `--dry-run` 只查看计划。
+仓库根目录的 `install.py` 使用 Python 3.8 或更高版本及标准库运行，支持把规则复制到某个项目，或为某个 Code Agent 写入用户级规则指针。Windows 示例使用 `py -3`，其他环境可使用对应的 Python 3 命令。所有模式默认先做冲突检查：目标已有不同内容时不写入；确认覆盖时使用 `--force`，安装器会先创建带时间戳的 `.bak` 备份。可先加 `--dry-run` 只查看计划。
 
 安装到项目（默认 Mini 版）：
 
 ```bash
-py install.py project D:/work/my-project --dry-run
-py install.py project D:/work/my-project
-py install.py project D:/work/my-project --edition lite
-py install.py project D:/work/my-project --edition self
-py install.py project D:/work/my-project --edition rules
+py -3 install.py project D:/work/my-project --dry-run
+py -3 install.py project D:/work/my-project
+py -3 install.py project D:/work/my-project --edition lite
+py -3 install.py project D:/work/my-project --edition self
+py -3 install.py project D:/work/my-project --edition rules
 ```
 
 需要显式复制项目文档模板时：
 
 ```bash
-py install.py project D:/work/my-project --edition rules --include-documents
+py -3 install.py project D:/work/my-project --edition rules --include-documents
 ```
 
 `documents/` 中的内容是模板或待验证材料，不能直接作为项目事实；默认不安装它们可避免示例数据污染目标项目。
@@ -192,15 +192,15 @@ py install.py project D:/work/my-project --edition rules --include-documents
 安装到 Code Agent 用户级入口（写入指向本仓库规则入口的绝对路径）：
 
 ```bash
-py install.py agent cline --dry-run
-py install.py agent cline
-py install.py agent cline --edition self
-py install.py agent claude --edition rules
-py install.py agent codex --edition self
-py install.py agent custom --entry-file D:/agent-config/RULES.md --edition self
+py -3 install.py agent cline --dry-run
+py -3 install.py agent cline
+py -3 install.py agent cline --edition self
+py -3 install.py agent claude --edition rules
+py -3 install.py agent codex --edition self
+py -3 install.py agent custom --entry-file D:/agent-config/RULES.md --edition self
 ```
 
-内置预设分别使用当前用户目录下的 Cline `Documents/Cline/Rules/AGENTS.md`、Claude Code `.claude/CLAUDE.md` 和 Codex `.codex/AGENTS.md`。不同版本或安装方式若采用其他位置，使用 `--entry-file` 显式覆盖；安装后本仓库路径不能随意移动，否则绝对指针会失效。运行 `py install.py --help` 查看完整参数。
+内置预设分别使用当前用户目录下的 Cline `Documents/Cline/Rules/AGENTS.md`、Claude Code `.claude/CLAUDE.md` 和 Codex `.codex/AGENTS.md`。不同版本或安装方式若采用其他位置，使用 `--entry-file` 显式覆盖；安装后本仓库路径不能随意移动，否则绝对指针会失效。运行 `py -3 install.py --help` 查看完整参数。
 
 ### 自动加载路径
 
@@ -247,7 +247,7 @@ py install.py agent custom --entry-file D:/agent-config/RULES.md --edition self
 
 **设计方式中立**。不把任何编程范式、分层模型或设计模式当作默认答案。采用 Mini 版时按 `mini/methods/neutral-design.md`，采用 Lite 版时按 `lite/methods/neutral-design.md`，采用强约束版时按 `rules/coding-principles.md`，采用 Self 独立版时遵循 `self/core.md` 的最小充分原则；不要跨版本拼接最高规则。
 
-**证据分层**。当前实现以代码、配置和运行结果为准；目标行为以用户确认的需求、业务规则和有效决策为准。两者冲突时显式标记，不擅自裁决；无法推导的内容标注“需用户提供”。
+**证据分层**。当前实现以代码、配置和运行结果为准；目标行为以当前有效的任务要求、契约、业务规则和决策为准。两者冲突时显式标记，不擅自裁决。任务可由对话、Issue、需求文档或委派包承载，来源形式不改变指令优先级或授权边界；补充描述和引用材料不自动成为要求、事实或授权。无法验证的内容标注缺口与影响，可自主解决的先取证，需裁决或关键资料、权限不可获得时再请求补充，不影响当前动作的未知不阻塞推进。
 
 **选择依据随方案维护**。决策信息是当前技术方案、数据结构和流程调整的辅助证据，不是逐次追加的日志。同一依据只维护一个主要位置；先查当前说明，只有关键缺口、冲突、有效约束变化或用户要求时定向追溯历史。独立档案仅保存有未来复用价值、跨模块或跨文档需统一引用且符合建档条件的重要取舍。历史状态不自动成为当前约束，否决前提变化可重新评估。相关变更完成后，已失效且无当前依赖的依据退出默认查询；兼容、迁移、回退和审计留存单独核对，授权清理不改写版本历史，也不假定未提交内容已保存。
 
@@ -259,4 +259,4 @@ py install.py agent custom --entry-file D:/agent-config/RULES.md --edition self
 
 `eval/` 存放规则维护用的行为回归基准：前 4 个案例取材真实开源项目 issue（并发竞态诊断、金额门禁、依赖 major 升级、决策回查），另有技术选型、多 Agent、设计方式中立、动态执行深度、性能证据、工具链作用域、项目上下文、代码收束与逻辑闭合以及状态门禁与操作性判定等综合场景。每次修改规则后，将基准任务交给加载了被测规则的 Agent 并核对检查点，防止规则变更引入行为退化。用法与判定标准见 `eval/README.md`。
 
-跨文件规则引用使用“文件路径 + 章节标题”而不是数字章节号。维护规则标题或引用后，运行 `py eval/check_rule_references.py`（也可用环境中的 `python`）检查目标文件、标题及遗留数字引用。
+跨文件规则引用使用“文件路径 + 章节标题”而不是数字章节号。维护规则标题或引用后，运行 `py -3 eval/check_rule_references.py`（或环境中的 Python 3 命令）检查目标文件、标题及遗留数字引用。

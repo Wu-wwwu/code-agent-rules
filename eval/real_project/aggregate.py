@@ -12,6 +12,36 @@ from typing import Any, Iterable
 
 STATUSES = {"completed", "blocked", "failed"}
 ISOLATION_VALUES = {"isolated", "unsafe", "not-applicable", "unknown"}
+RESULT_FIELDS = {
+    "case_id",
+    "run_id",
+    "candidate",
+    "label",
+    "code_commit",
+    "rule_sha256",
+    "model",
+    "model_effort",
+    "tool_environment_sha256",
+    "task_sha256",
+    "timeout_seconds",
+    "status",
+    "delivered_patch",
+    "project_tests",
+    "acceptance",
+    "dangerous_side_effects",
+    "legal_cases_passed",
+    "test_isolation",
+    "unrelated_changed_files",
+    "entry_loaded",
+    "route_hits",
+    "unnecessary_block",
+    "unauthorized_actions",
+    "context_tokens",
+    "wall_clock_seconds",
+    "tool_calls",
+    "block_reason",
+    "artifacts",
+}
 
 
 def require_non_negative_int(value: Any, field: str) -> int:
@@ -23,6 +53,9 @@ def require_non_negative_int(value: Any, field: str) -> int:
 def validate_checks(value: Any, field: str) -> tuple[int, int]:
     if not isinstance(value, dict):
         raise ValueError(f"{field} 必须是对象")
+    unknown_fields = set(value) - {"passed", "total"}
+    if unknown_fields:
+        raise ValueError(f"{field} 包含未知字段: {', '.join(sorted(unknown_fields))}")
     passed = require_non_negative_int(value.get("passed"), f"{field}.passed")
     total = require_non_negative_int(value.get("total"), f"{field}.total")
     if passed > total:
@@ -94,13 +127,31 @@ def route_hit_metric(runs: list[dict[str, Any]]) -> dict[str, Any]:
 def validate_result(result: Any, source: str = "<memory>") -> dict[str, Any]:
     if not isinstance(result, dict):
         raise ValueError(f"{source}: 顶层必须是对象")
-    for field in ("case_id", "run_id", "candidate", "code_commit", "rule_sha256"):
+    unknown_fields = set(result) - RESULT_FIELDS
+    if unknown_fields:
+        raise ValueError(f"{source}: 未知字段: {', '.join(sorted(unknown_fields))}")
+    for field in (
+        "case_id",
+        "run_id",
+        "candidate",
+        "code_commit",
+        "rule_sha256",
+        "model",
+        "model_effort",
+        "tool_environment_sha256",
+        "task_sha256",
+    ):
         if not isinstance(result.get(field), str) or not result[field]:
             raise ValueError(f"{source}: {field} 必须是非空字符串")
     if len(result["code_commit"]) < 7:
         raise ValueError(f"{source}: code_commit 至少需要 7 个字符")
-    if len(result["rule_sha256"]) != 64 or any(character not in "0123456789abcdefABCDEF" for character in result["rule_sha256"]):
-        raise ValueError(f"{source}: rule_sha256 必须是 64 位十六进制")
+    for field in ("rule_sha256", "tool_environment_sha256", "task_sha256"):
+        value = result[field]
+        if len(value) != 64 or any(character not in "0123456789abcdefABCDEF" for character in value):
+            raise ValueError(f"{source}: {field} 必须是 64 位十六进制")
+    timeout = result.get("timeout_seconds")
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError(f"{source}: timeout_seconds 必须是正数")
     if result.get("status") not in STATUSES:
         raise ValueError(f"{source}: status 无效")
     if not isinstance(result.get("delivered_patch"), bool):
@@ -130,14 +181,30 @@ def validate_result(result: Any, source: str = "<memory>") -> dict[str, Any]:
 def aggregate(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     seen_runs: set[tuple[str, str]] = set()
-    baseline: tuple[str, str, str] | None = None
+    baseline: tuple[str, str, str, str, str, str, float] | None = None
+    candidate_rule_hashes: dict[str, str] = {}
     for result in results:
         valid = validate_result(result)
-        current_baseline = (valid["case_id"], valid["code_commit"], valid["rule_sha256"])
+        current_baseline = (
+            valid["case_id"],
+            valid["code_commit"],
+            valid["model"],
+            valid["model_effort"],
+            valid["tool_environment_sha256"],
+            valid["task_sha256"],
+            float(valid["timeout_seconds"]),
+        )
         if baseline is None:
             baseline = current_baseline
         elif current_baseline != baseline:
-            raise ValueError("聚合输入必须使用同一 case_id、code_commit 和 rule_sha256")
+            raise ValueError(
+                "聚合输入必须使用相同 case_id、code_commit、model、model_effort、"
+                "tool_environment_sha256、task_sha256 和 timeout_seconds"
+            )
+        candidate = valid["candidate"]
+        previous_rule_hash = candidate_rule_hashes.setdefault(candidate, valid["rule_sha256"])
+        if previous_rule_hash != valid["rule_sha256"]:
+            raise ValueError(f"同一 candidate 必须使用同一 rule_sha256: {candidate}")
         key = (valid["candidate"], valid["run_id"])
         if key in seen_runs:
             raise ValueError(f"重复运行: candidate={key[0]}, run_id={key[1]}")
@@ -160,6 +227,7 @@ def aggregate(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
             project_total += total
         candidate_summary: dict[str, Any] = {
             "runs": len(runs),
+            "rule_sha256": candidate_rule_hashes[candidate],
             "status_counts": status_counts,
             "completed_rate": rate(status_counts["completed"], len(runs)),
             "delivered_patches": sum(run["delivered_patch"] for run in runs),
@@ -182,7 +250,22 @@ def aggregate(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
             runs, "legal_cases_passed"
         )
         candidates[candidate] = candidate_summary
-    return {"total_runs": sum(len(runs) for runs in grouped.values()), "candidates": candidates}
+    experiment = None
+    if baseline is not None:
+        experiment = {
+            "case_id": baseline[0],
+            "code_commit": baseline[1],
+            "model": baseline[2],
+            "model_effort": baseline[3],
+            "tool_environment_sha256": baseline[4],
+            "task_sha256": baseline[5],
+            "timeout_seconds": baseline[6],
+        }
+    return {
+        "experiment": experiment,
+        "total_runs": sum(len(runs) for runs in grouped.values()),
+        "candidates": candidates,
+    }
 
 
 def load_results(paths: Iterable[Path]) -> list[dict[str, Any]]:
