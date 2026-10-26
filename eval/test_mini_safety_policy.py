@@ -51,7 +51,7 @@ class MiniSafetyPolicyTests(unittest.TestCase):
 
         self.assertIn("新任务或范围变化时读取 `triggers.md`", agent)
         self.assertIn("只加载当前动作需要的最少方法", agent)
-        self.assertIn("任何方法都不能替代另一方法的门禁", triggers)
+        self.assertIn("任何方法都不能替代另一方法的要求", triggers)
         self.assertIn("Bug 优先走诊断", triggers)
         self.assertIn("权限执行风险走破坏性分析", triggers)
         self.assertIn("权限目标语义不明时再叠加业务规则", triggers)
@@ -63,7 +63,7 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         self.assertIn("形成影响清单", policy)
         self.assertIn("再执行修改", policy)
         self.assertIn("逐处或分类请求确认", policy)
-        self.assertIn("分级、方案与授权门禁", policy)
+        self.assertIn("分级、方案与授权确认", policy)
         self.assertIn("破坏性义务完成后退出", policy)
 
     def test_business_risk_uses_project_code_data_flow_and_resources(self):
@@ -85,7 +85,7 @@ class MiniSafetyPolicyTests(unittest.TestCase):
         for dimension in ("**代码、数据、流程、关键资源**",):
             self.assertIn(dimension, policy)
         self.assertIn("项目证据可以升级风险", policy)
-        self.assertIn("不得降低已命中的高风险硬门槛", policy)
+        self.assertIn("不得降低已命中的高风险条件", policy)
 
     def test_project_context_builds_evidence_based_task_environment(self):
         policy = read_rule("mini/methods/project-context.md")
@@ -111,7 +111,7 @@ class MiniSafetyPolicyTests(unittest.TestCase):
             "待验证推断",
             "未知和冲突",
             "架构、契约、兼容要求",
-            "风险和权限门禁",
+            "风险和权限要求",
             "共享资源所有者",
             "合并顺序",
             "验证命令或验收证据",

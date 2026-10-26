@@ -40,7 +40,7 @@ class PolicyContractTests(unittest.TestCase):
 
     def test_lite_user_goal_does_not_override_safety_gates(self) -> None:
         policy = read_rule("lite/agent.md")
-        self.assertIn("不得覆盖安全、授权、隔离、不可逆变更和强制验证门禁", policy)
+        self.assertIn("不得覆盖安全、授权、隔离、不可逆变更和必要验证要求", policy)
 
     def test_all_editions_expose_standalone_safety_baseline(self) -> None:
         for relative_path in ("mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"):
@@ -102,7 +102,7 @@ class PolicyContractTests(unittest.TestCase):
         for relative_path in ("mini/agent.md", "lite/agent.md", "rules/agent.md", "self/core.md"):
             with self.subTest(relative_path=relative_path):
                 policy = read_rule(relative_path)
-                self.assertIn("状态与继续门禁", policy)
+                self.assertIn("状态与继续条件", policy)
                 for phrase in ("有效进展", "写入前", "继续前", "完成前"):
                     self.assertIn(phrase, policy)
 
@@ -382,7 +382,7 @@ class PolicyContractTests(unittest.TestCase):
         for phrase in ("proposed", "active", "paused", "blocked", "completed", "superseded"):
             self.assertIn(phrase, method)
         self.assertIn("不要求每轮输出完整状态表", method)
-        self.assertIn("不替代风险/授权门禁", method)
+        self.assertIn("不替代风险分级与授权确认", method)
         self.assertIn("模块未完成，或尚未明确执行清理前，保留仍可能影响本模块", method)
         self.assertIn("同一决策只维护一个权威条目", method)
         self.assertIn("不要求创建模块目录、局部 README", method)
@@ -439,10 +439,10 @@ class PolicyContractTests(unittest.TestCase):
     def test_case_n_documents_state_gate_evaluation_protocol(self) -> None:
         case_n = read_rule("eval/case-n-operational-criteria.md")
         eval_readme = read_rule("eval/README.md")
-        self.assertIn("### 状态与继续门禁（四版通用）", case_n)
+        self.assertIn("### 状态与继续条件（四版通用）", case_n)
         for phrase in ("文字假进展变体", "统计采样变体", "验证未完成的交付变体", "预算与恢复"):
             self.assertIn(phrase, case_n)
-        self.assertIn("### 状态门禁的 A/B 评测", eval_readme)
+        self.assertIn("### 状态与继续条件的 A/B 评测", eval_readme)
 
 
 if __name__ == "__main__":

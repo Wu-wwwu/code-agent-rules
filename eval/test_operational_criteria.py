@@ -43,7 +43,7 @@ class OperationalCriteriaTests(unittest.TestCase):
                     r"停机/切流",
                     r"跨环境同步",
                     r"撤销外部副作用",
-                    r"(?:没有经过验证的回退路径|尚无已验证路径)",
+                    r"(?:没有经过验证的恢复路径|尚无已验证路径)",
                 ):
                     self.assertRegex(policy, pattern)
 
@@ -85,7 +85,7 @@ class OperationalCriteriaTests(unittest.TestCase):
             "错误阈值",
             "停止条件",
             "监控观察点",
-            "代码/数据/流量回退步骤",
+            "代码/数据/流量恢复步骤",
             "不可逆部分",
         ):
             self.assertIn(text, policy)
